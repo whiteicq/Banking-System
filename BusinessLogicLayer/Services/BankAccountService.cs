@@ -9,12 +9,13 @@ using DataLayer;
 
 namespace BusinessLogicLayer.Services
 {
+    // надо оформить норм комменты (///)
+    // сделать главный Счет банка, с общим балансом, с которого будет выдача денег на кредит и на который будут идти деньги с кредитов
     public class BankAccountService : IFInancialOperations
     {
         private BankAccountDTO _bankAccount;
         private BankingDbContext _db;
         private IMapper _mapper;
-        // Добавить оператора (менеджера) в конструктор для подтверждения кредита 
         public BankAccountService(BankAccountDTO bankAccount, BankingDbContext dbContext, IMapper mapper)
         {
             _bankAccount = bankAccount;
@@ -89,9 +90,16 @@ namespace BusinessLogicLayer.Services
                 Description = description
             };
 
+            _bankAccount.Credits.Add(requestCredit);
+            Credit credit = _mapper.Map<Credit>(requestCredit);
+            _db.Credits.Add(credit);
+            _db.SaveChanges();
+
             return requestCredit;
         }
 
+        // бахнуть метод для внесения взноса за кредит?
+        // Сделать СПЕЦ Счет для оплаты кредита (обычный счет, но будет передавать готовую сумму с учетом процентов)?
         public void TakeTransaction(BankAccountDTO recipientBankAccount, decimal sum, string description = null!)
         {
             TransactionDTO transaction = new TransactionDTO()

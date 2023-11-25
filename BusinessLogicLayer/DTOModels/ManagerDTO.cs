@@ -8,6 +8,6 @@ namespace BusinessLogicLayer.DTOModels
 {
     public class ManagerDTO : User
     {
-
+        
     }
 }
