@@ -37,6 +37,8 @@ namespace DataLayer.EF
             modelBuilder.Entity<Transaction>()
                 .Property(t => t.SumTransaction)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Credit>().Property(credit => credit.Status).HasConversion<string>();
         }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Client> Clients { get; set; }

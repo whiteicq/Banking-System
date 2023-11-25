@@ -5,7 +5,7 @@ using DataLayer.EF;
 using System.Transactions;
 using DataLayer.Entities;
 using System.Text;
-using System.ComponentModel;
+using DataLayer;
 
 namespace BusinessLogicLayer.Services
 {
@@ -44,8 +44,8 @@ namespace BusinessLogicLayer.Services
             StringBuilder cardNumber = new StringBuilder();
             while (cardNumber.Length < 16)
             {
-                int rndNunmber = random.Next(0, 10);
-                cardNumber.Append(rndNunmber);
+                int rndNumber = random.Next(0, 10);
+                cardNumber.Append(rndNumber);
             }
 
             StringBuilder cvv = new StringBuilder();
@@ -75,14 +75,21 @@ namespace BusinessLogicLayer.Services
             _db.SaveChanges();
         }
 
-        public void TakeRequestCredit(decimal sum) // в конце метода должна быть оформлена заявка, а не сам кредит (далее делом за менеджером)
-        { // переделать таблицу кредитов в бд
-            CreditDTO credit = new CreditDTO()
+        // наверное передавать заявку Менеджеру надо
+        public CreditDTO TakeRequestCredit(decimal sum, int term, string description = null!) // в конце метода должна быть оформлена заявка, а не сам кредит (далее делом за менеджером)
+        {
+            CreditDTO requestCredit = new CreditDTO()
             {
                 SumCredit = sum,
                 InterestRate = 13.0f,
-                /////////
+                CreditApprovalDate = DateTime.Now,
+                BankAccountId = _bankAccount.Id,
+                CreditTerm = term,
+                Status = CreditStatus.Question,
+                Description = description
             };
+
+            return requestCredit;
         }
 
         public void TakeTransaction(BankAccountDTO recipientBankAccount, decimal sum, string description = null!)
@@ -108,8 +115,6 @@ namespace BusinessLogicLayer.Services
             _db.Transactions.Add(DALtransaction);
             _db.SaveChanges();
             _bankAccount.Transactions.Add(transaction);
-
-               
         }
     }
 }
