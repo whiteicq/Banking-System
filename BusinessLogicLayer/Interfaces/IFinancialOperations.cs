@@ -10,10 +10,12 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IFInancialOperations
     {
+        decimal Balance { get; set; } // Баланс счета
         void TakeTransaction(BankAccountDTO recipientBankAccount, decimal sum, string description); // Совершить транзакцию
         CardDTO CreateCard(); // Открыть карту 
         void LinkCard(CardDTO card); // Привязка карты
         CreditDTO TakeRequestCredit(decimal sum, int term, string description); // Оформление кредита
-        decimal Balance { get; set; } // Баланс счета
+        void MakeCreditPayment(CreditDTO approvedCredit); // Возмещение кредита за месяц
+        void RepayFullCredit(CreditDTO approvedCredit); // Возмещение кредита целиком
     }
 }

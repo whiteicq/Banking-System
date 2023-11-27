@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace BusinessLogicLayer.Services
 {
-    internal class AccountService
+    public class AccountService
     {
+
     }
 }

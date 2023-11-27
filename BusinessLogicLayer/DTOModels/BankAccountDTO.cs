@@ -17,6 +17,7 @@ namespace BusinessLogicLayer.DTOModels
         public DateTime DateCreate { get; set; }
         public AccountDTO Account { get; set; } = null!;
         public int AccountId { get; set; }
+        public bool IsFrozen { get; set; } = false;
         public List<CardDTO> Cards { get; set; } = null!;
         public List<CreditDTO> Credits { get; set; } = null!;
         public List<TransactionDTO> Transactions { get; set; } = null!;

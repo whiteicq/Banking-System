@@ -5,7 +5,6 @@ using DataLayer.EF;
 using DataLayer;
 using DataLayer.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ namespace BusinessLogicLayer.Services
         private ManagerDTO _manager;
         private BankingDbContext _db;
         private IMapper _mapper;
-        private List<BankAccountDTO> _accounts;
+        private List<BankAccountDTO> _bankAccounts;
         public ManagementService(ManagerDTO manager, BankingDbContext dbContext, IMapper mapper)
         {
             _manager = manager;
@@ -26,7 +25,7 @@ namespace BusinessLogicLayer.Services
             
             foreach (var ba in _db.BankAccounts)
             {
-                _accounts.Add(_mapper.Map<BankAccountDTO>(ba));
+                _bankAccounts.Add(_mapper.Map<BankAccountDTO>(ba));
             }
         }
 
@@ -34,7 +33,7 @@ namespace BusinessLogicLayer.Services
         {
             if (requestCredit.Status == CreditStatus.Question)
             {
-                BankAccountDTO acc = _accounts.Find(c => c.Credits.Contains(requestCredit));
+                BankAccountDTO acc = _bankAccounts.Find(c => c.Credits.Contains(requestCredit));
                 acc.Credits.Find(credit => credit.Id == requestCredit.Id).Status = CreditStatus.Active;
 
                 Credit approveCredit = _db.Credits.Find(requestCredit.Id);
@@ -47,7 +46,7 @@ namespace BusinessLogicLayer.Services
         {
             if (requestCredit.Status == CreditStatus.Question)
             {
-                BankAccountDTO acc = _accounts.Find(c => c.Credits.Contains(requestCredit));
+                BankAccountDTO acc = _bankAccounts.Find(c => c.Credits.Contains(requestCredit));
                 acc.Credits.Find(credit => credit.Id == requestCredit.Id).Status = CreditStatus.Active;
 
                 Credit declineCredit = _db.Credits.Find(requestCredit.Id);
@@ -56,16 +55,24 @@ namespace BusinessLogicLayer.Services
             }
         }
 
-        // вероятно надо переделать Счет (добавить поле статуса заморожен/нет? Тогда придется переделать чето в его функционале
-        // с учетом того, заморожен Счет или нет)
         public void FreezeBankAccount(int bankAccountId)
         {
-            throw new NotImplementedException();
+            BankAccountDTO unFrozenBankAccount = _bankAccounts.Find(ba => ba.Id == bankAccountId);
+            unFrozenBankAccount.IsFrozen = true;
+
+            BankAccount dbUnFrozenBankAccount = _db.BankAccounts.Find(bankAccountId);
+            dbUnFrozenBankAccount.IsFrozen = true;
+            _db.SaveChanges();
         }
 
         public void UnFreezeBankAccount(int bankAccountId)
         {
-            throw new NotImplementedException();
+            BankAccountDTO frozenBankAccount = _bankAccounts.Find(ba => ba.Id == bankAccountId);
+            frozenBankAccount.IsFrozen = false;
+
+            BankAccount dbFrozenBankAccount = _db.BankAccounts.Find(bankAccountId);
+            dbFrozenBankAccount.IsFrozen = true;
+            _db.SaveChanges();
         }
 
         // по хорошему, кредитную историю нужно смотреть конкретно по Аккаунту
