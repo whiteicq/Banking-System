@@ -160,6 +160,11 @@ namespace BusinessLogicLayer.Services
         // разовая оплата кредита (месячная)
         public void MakeCreditPayment(CreditDTO approvedCredit)
         {
+            if (_bankAccount.IsFrozen)
+            {
+                throw new InvalidOperationException("Current bank account is frozen");
+            }
+
             CreditDTO currentCredit = _bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);
 
             if (currentCredit.Status != CreditStatus.Active)
@@ -183,6 +188,11 @@ namespace BusinessLogicLayer.Services
         // полная выплата кредита за раз
         public void RepayFullCredit(CreditDTO approvedCredit)
         {
+            if (_bankAccount.IsFrozen)
+            {
+                throw new InvalidOperationException("Current bank account is frozen");
+            }
+
             CreditDTO currentCredit = _bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);
 
             if (currentCredit.Status != CreditStatus.Active)
