@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogicLayer.DTOModels
+namespace DataLayer
 {
-    public class ManagerDTO : User
+    public enum Roles
     {
-        
+        Client, 
+        Manager,
+        Administrator
     }
 }

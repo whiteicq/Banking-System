@@ -4,6 +4,7 @@ using DataLayer.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(BankingDbContext))]
-    partial class BankingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231209135919_replaceword")]
+    partial class replaceword
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,10 +82,6 @@ namespace DataLayer.Migrations
                         .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -171,6 +170,29 @@ namespace DataLayer.Migrations
                     b.ToTable("Credits");
                 });
 
+            modelBuilder.Entity("DataLayer.Entities.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId")
+                        .IsUnique();
+
+                    b.ToTable("Roles");
+                });
+
             modelBuilder.Entity("DataLayer.Entities.Transaction", b =>
                 {
                     b.Property<int>("Id")
@@ -238,6 +260,17 @@ namespace DataLayer.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DataLayer.Entities.Role", b =>
+                {
+                    b.HasOne("DataLayer.Entities.Account", "Account")
+                        .WithOne("Role")
+                        .HasForeignKey("DataLayer.Entities.Role", "AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("DataLayer.Entities.Transaction", b =>
                 {
                     b.HasOne("DataLayer.BankAccount", "BankAccount")
@@ -261,6 +294,9 @@ namespace DataLayer.Migrations
             modelBuilder.Entity("DataLayer.Entities.Account", b =>
                 {
                     b.Navigation("BankAccounts");
+
+                    b.Navigation("Role")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

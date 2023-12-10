@@ -4,6 +4,7 @@ using DataLayer.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(BankingDbContext))]
-    partial class BankingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231207142149_AddIdentityEntities")]
+    partial class AddIdentityEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,58 +51,7 @@ namespace DataLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("BankAccounts", t =>
-                        {
-                            t.HasCheckConstraint("Balance", "Balance >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("DataLayer.Entities.Account", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DateBirth")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("HashPassword")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("PhoneNumber")
-                        .IsUnique();
-
-                    b.HasIndex("UserName")
-                        .IsUnique();
-
-                    b.ToTable("Accounts");
+                    b.ToTable("BankAccounts");
                 });
 
             modelBuilder.Entity("DataLayer.Entities.Card", b =>
@@ -115,13 +67,11 @@ namespace DataLayer.Migrations
 
                     b.Property<string>("CardNumber")
                         .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cvv")
                         .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DateExpiration")
                         .HasColumnType("datetime2");
@@ -201,21 +151,7 @@ namespace DataLayer.Migrations
 
                     b.HasIndex("BankAccountId");
 
-                    b.ToTable("Transactions", t =>
-                        {
-                            t.HasCheckConstraint("SumTransaction", "SumTransaction >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("DataLayer.BankAccount", b =>
-                {
-                    b.HasOne("DataLayer.Entities.Account", "Account")
-                        .WithMany("BankAccounts")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("DataLayer.Entities.Card", b =>
@@ -256,11 +192,6 @@ namespace DataLayer.Migrations
                     b.Navigation("Credits");
 
                     b.Navigation("Transactions");
-                });
-
-            modelBuilder.Entity("DataLayer.Entities.Account", b =>
-                {
-                    b.Navigation("BankAccounts");
                 });
 #pragma warning restore 612, 618
         }

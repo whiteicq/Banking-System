@@ -11,11 +11,11 @@ namespace BusinessLogicLayer.DTOModels
     public class AccountDTO
     {
         public int Id { get; set; }
+        public string UserName { get; set; } = null!;
+        public string PhoneNumber { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string HashPassword { get; set; } = null!;
-        public int RoleId { get; set; }
         public Roles Role { get; set; }
-        public User User { get; set; } = null!;
         public List<BankAccountDTO> BankAccounts { get; set; } = null!;
     }
 }

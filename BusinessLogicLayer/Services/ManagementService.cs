@@ -9,16 +9,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+// рефакт
 namespace BusinessLogicLayer.Services
 {
     public class ManagementService : IManagementOperations
     {
-        private ManagerDTO _manager;
+        private AccountDTO _manager;
         private BankingDbContext _db;
         private IMapper _mapper;
         private List<BankAccountDTO> _bankAccounts;
-        public ManagementService(ManagerDTO manager, BankingDbContext dbContext, IMapper mapper)
+        public ManagementService(AccountDTO manager, BankingDbContext dbContext, IMapper mapper)
         {
+            /*if(AccountDTO)*/ // добавить проверку роли чтобы Акк был Манагером (ДТО исправить)
             _manager = manager;
             _db = dbContext;
             _mapper = mapper;

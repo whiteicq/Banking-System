@@ -17,20 +17,11 @@ namespace BusinessLogicLayer.Mappings
             CreateMap<Account, AccountDTO>();
             CreateMap<AccountDTO, Account>();
 
-            CreateMap<Administrator, AdministratorDTO>();
-            CreateMap<AdministratorDTO, Administrator>();
-
-            CreateMap<Manager, ManagerDTO>();
-            CreateMap<ManagerDTO, Manager>();
-
             CreateMap<BankAccount, BankAccountDTO>();
             CreateMap<BankAccountDTO, BankAccount>();
 
             CreateMap<Card, CardDTO>();
             CreateMap<CardDTO, Card>();
-
-            CreateMap<Client, ClientDTO>();
-            CreateMap<ClientDTO, Client>();
 
             CreateMap<Credit, CreditDTO>();
             CreateMap<CreditDTO, Credit>();

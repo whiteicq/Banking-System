@@ -1,4 +1,14 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using BusinessLogicLayer.Mappings;
+using DataLayer.EF;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System.Text;
+using DataLayer;
+using BusinessLogicLayer.Interfaces;
+using BusinessLogicLayer.Services;
 
 namespace Banking
 {
@@ -10,7 +20,34 @@ namespace Banking
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddSingleton(s => new BankingDbContext(builder.Configuration["DefaultConnection"]!));
             builder.Services.AddAutoMapper(typeof(BLLMappingProfile));
+            builder.Services.AddScoped<IAuthService>(authS => new AuthentificationService(builder.Configuration["Key"]!));
+            builder.Services.AddScoped<IRegistrationService, ClientRegistrationService>();
+            
+            
+            // jwt
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(o =>
+            {
+                o.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = false,
+                    ValidateIssuerSigningKey = true
+                };
+            });
+
+            builder.Services.AddAuthorization();
+            // 
 
             var app = builder.Build();
 
@@ -28,10 +65,11 @@ namespace Banking
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseAuthentication();
+            
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Registration}/{action=Registrate}/{id?}");
 
             app.Run();
         }

@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Banking.styles.css" asp-append-version="true" />
+    <title>Регистрация</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Регистрация</h2>
+        <form class="row g-3">
+            <div class="col-md-6">
+                <label for="inputUsername" class="form-label">Никнейм</label>
+                <input type="text" class="form-control" id="inputUsername" required>
+            </div>
+            <div class="col-md-6">
+                <label for="inputPassword" class="form-label">Пароль</label>
+                <input type="password" class="form-control" id="inputPassword" required>
+            </div>
+            <div class="col-md-6">
+                <label for="confirmPassword" class="form-label">Подтверждение пароля</label>
+                <input type="password" class="form-control" id="confirmPassword" required>
+            </div>
+            <div class="col-md-6">
+                <label for="inputPhone" class="form-label">Телефон</label>
+                <input type="tel" class="form-control" id="inputPhone" required>
+            </div>
+            <div class="col-md-6">
+                <label for="inputEmail" class="form-label">Почта</label>
+                <input type="email" class="form-control" id="inputEmail" required>
+            </div>
+            <div class="col-md-6">
+                <label for="inputDateOfBirth" class="form-label">Дата рождения</label>
+                <input type="date" class="form-control" id="inputDateOfBirth" required>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

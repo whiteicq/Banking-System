@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.Core.Mapping;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataLayer
+namespace DataLayer.Entities
 {
     public class Account
     {
         public int Id { get; set; }
+        public string UserName { get; set; } = null!;
+        [MaxLength(15)]
+        public string PhoneNumber { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string HashPassword { get; set; } = null!;
-        public int RoleId { get; set; }
-        public Role Role { get; set; } = null!;
-        public Client Client { get; set; } = null!;
-        public Administrator Administrator { get; set; } = null!;
-        public Manager Manager { get; set; } = null!;
-        public List<BankAccount> BankAccounts { get; set; } = null!; // сделать во флюенте связь один ко многим
+        [Column(TypeName = "varchar(20)")]
+        public Roles Role { get; set; }
+        public DateTime DateBirth { get; set; }
+        public List<BankAccount>? BankAccounts { get; set; } = null!;
     }
 }

@@ -146,6 +146,7 @@ namespace BusinessLogicLayer.Services
             }
             _db.BankAccounts.Find(_bankAccount).Balance -= sum;
             _db.SaveChanges();
+            // также отображение в бд для пополненного счета получателя
 
             var DALtransaction = _mapper.Map<DataLayer.Entities.Transaction>(transaction);
             _db.Transactions.Add(DALtransaction);
