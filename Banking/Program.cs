@@ -20,6 +20,8 @@ namespace Banking
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            /*builder.Services.AddDbContext<BankingDbContext>(s => new BankingDbContext(builder.Configuration["DefaultConnection"]!));*/
+            builder.Services.AddDbContext<BankingDbContext>(options => options.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=BankingDb;Trusted_Connection=True;MultipleActiveResultSets=true"));
             builder.Services.AddSingleton(s => new BankingDbContext(builder.Configuration["DefaultConnection"]!));
             builder.Services.AddAutoMapper(typeof(BLLMappingProfile));
             builder.Services.AddScoped<IAuthService>(authS => new AuthentificationService(builder.Configuration["Key"]!));
@@ -69,7 +71,7 @@ namespace Banking
             
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Registration}/{action=Registrate}/{id?}");
+                pattern: "{controller=Start}/{action=Index}/{id?}");
 
             app.Run();
         }
