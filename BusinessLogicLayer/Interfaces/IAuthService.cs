@@ -8,9 +8,9 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IAuthService
     {
-        string GenerateToken(string userId);
+        string GenerateToken(int userId);
         bool ValidateToken(string token);
-        bool Authenticate(string username, string password);
+        bool Authentificate(string username, string password);
         bool Authorize(string token, string requiredRole);
     }
 }

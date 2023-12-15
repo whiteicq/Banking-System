@@ -1,0 +1,18 @@
+﻿<div class="container">
+    <h1>Создание банковского счета</h1>
+
+    <form>
+        <div class="form-group">
+            <label for="accountType">Тип счета:</label>
+            <select class="form-control" id="accountType">
+                <option value="накопительный">Накопительный</option>
+                <option value="кредитный">Кредитный</option>
+                <option value="мультивалютный">Мультивалютный</option>
+            </select>
+        </div>
+
+        <!-- Другие поля для создания банковского счета -->
+
+        <button type="submit" class="btn btn-primary" asp-controller="BankAccount" asp-action="CreateBankAccount">Создать счет</button>
+    </form>
+</div>

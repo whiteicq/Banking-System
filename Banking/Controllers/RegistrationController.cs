@@ -21,7 +21,7 @@ namespace Banking.Controllers
         public IActionResult Registrate(string nickname, string email, string password, string phoneNumber, DateTime dateBirth)
         {
             _registrationService.CreateAccount(nickname, email, password, phoneNumber, dateBirth);
-            return Ok();
+            return RedirectToAction("MyAccount", "Account");
         }
     }
 }

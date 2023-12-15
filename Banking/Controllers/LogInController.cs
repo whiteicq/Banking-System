@@ -1,5 +1,6 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using DataLayer.EF;
+using DataLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Banking.Controllers
@@ -23,22 +24,22 @@ namespace Banking.Controllers
         [HttpPost]
         public IActionResult Authentificate(string nickname, string password)
         {
-            if (_authService.Authenticate(nickname, password))
+            if (_authService.Authentificate(nickname, password))
             {
-                string userId = _db.Accounts.FirstOrDefault(a => a.UserName == nickname)!.Id.ToString();
+                int userId = _db.Accounts.FirstOrDefault(a => a.UserName == nickname)!.Id;
                 string token = _authService.GenerateToken(userId);
-                return Ok(new { token }); // редирект в аккаунт или на главную
-                /*return Authorization();*/
+                /*return Ok(new { token });*/
+                return Authorization(token, userId);
             }
 
             return Unauthorized();
         }
 
         [HttpGet]
-        public IActionResult Authorization()
+        public IActionResult Authorization(string token, int userId)
         {
             // Получение заголовка "Authorization" из запроса
-            string token = Request.Headers["Authorization"];
+            /*string token = Request.Headers["Authorization"];*/
 
             if (!string.IsNullOrEmpty(token))
             {
@@ -56,7 +57,11 @@ namespace Banking.Controllers
                     if (isAuthorized)
                     {
                         // Возвращаем информацию о пользователе
-                        return Ok(new { username = User.Identity.Name });
+                        /*return Ok(new { username = User.Identity.Name });*/
+                        // тут редирект на главную
+                        TempData["userId"] = userId;
+                        
+                        return RedirectToAction("MyAccount", "Account");
                     }
                 }
             }

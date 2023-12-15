@@ -22,9 +22,10 @@ namespace Banking
             builder.Services.AddControllersWithViews();
             /*builder.Services.AddDbContext<BankingDbContext>(s => new BankingDbContext(builder.Configuration["DefaultConnection"]!));*/
             builder.Services.AddDbContext<BankingDbContext>(options => options.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=BankingDb;Trusted_Connection=True;MultipleActiveResultSets=true"));
-            builder.Services.AddSingleton(s => new BankingDbContext(builder.Configuration["DefaultConnection"]!));
+            builder.Services.AddSingleton(s => new BankingDbContext(builder.Configuration["ConnectionStrings:DefaultConnection"]!));
             builder.Services.AddAutoMapper(typeof(BLLMappingProfile));
-            builder.Services.AddScoped<IAuthService>(authS => new AuthentificationService(builder.Configuration["Key"]!));
+            builder.Services.AddSingleton<IAuthService>(authService => new AuthentificationService(new BankingDbContext(builder.Configuration["ConnectionStrings:DefaultConnection"]!), builder.Configuration["Jwt:Key"]!));
+            /*builder.Services.AddScoped<IAuthService>(authService => new AuthentificationService(new BankingDbContext(builder.Configuration["DefaultConnection"]!), builder.Configuration["Key"]!));*/
             builder.Services.AddScoped<IRegistrationService, ClientRegistrationService>();
             
             

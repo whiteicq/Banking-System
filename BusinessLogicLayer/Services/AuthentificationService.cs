@@ -18,11 +18,12 @@ namespace BusinessLogicLayer.Services
     {
         private BankingDbContext _db;
         private readonly string _jwtSecret;
-        public AuthentificationService(string jwtSecret)
+        public AuthentificationService(BankingDbContext db, string jwtSecret)
         {
+            _db = db;
             _jwtSecret = jwtSecret;
         }
-        public bool Authenticate(string username, string password)
+        public bool Authentificate(string username, string password)
         {
             Account account = _db.Accounts.FirstOrDefault(a => a.UserName == username)!;
             string hashPassword = string.Join("", SHA256.HashData(Encoding.UTF8.GetBytes(password)).Select(x => x.ToString("X2")));
@@ -65,17 +66,17 @@ namespace BusinessLogicLayer.Services
             }
         }
 
-        public string GenerateToken(string userId)
+        public string GenerateToken(int userId)
         {
-            /*Account currentAccount = _db.Accounts.Find(userId); // получаем аккаунт для которого будем генерить токен (?)*/
+            Account currentAccount = _db.Accounts.Find(userId)!; // получаем аккаунт для которого будем генерить токен (?)
             var tokenHandler = new JwtSecurityTokenHandler(); // Создаем объект для работы с JWT токенами
             var key = Encoding.ASCII.GetBytes(_jwtSecret); 
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, userId), // Устанавливаем идентификатор пользователя в качестве идентификационного токена
-                    /*new Claim(ClaimTypes.Role, currentAccount.Role.ToString()) // возможно спорный момент*/
+                    new Claim(ClaimTypes.NameIdentifier, userId.ToString()), // Устанавливаем идентификатор пользователя в качестве идентификационного токена
+                    new Claim(ClaimTypes.Role, currentAccount.Role.ToString()) // возможно спорный момент
                 }),
                 Expires = DateTime.UtcNow.AddDays(7), // Устанавливаем срок действия токена на 7 дней
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature) // Устанавливаем подпись токена с использованием секретного ключа
