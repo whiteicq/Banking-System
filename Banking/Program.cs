@@ -26,6 +26,7 @@ namespace Banking
             builder.Services.AddAutoMapper(typeof(BLLMappingProfile));
             builder.Services.AddSingleton<IAuthService>(authService => new AuthentificationService(new BankingDbContext(builder.Configuration["ConnectionStrings:DefaultConnection"]!), builder.Configuration["Jwt:Key"]!));
             /*builder.Services.AddScoped<IAuthService>(authService => new AuthentificationService(new BankingDbContext(builder.Configuration["DefaultConnection"]!), builder.Configuration["Key"]!));*/
+            /*builder.Services.AddScoped<IClientService>(clientService => new ClientService()*/
             builder.Services.AddScoped<IRegistrationService, ClientRegistrationService>();
             
             
