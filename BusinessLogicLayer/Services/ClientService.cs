@@ -15,36 +15,49 @@ namespace BusinessLogicLayer.Services
     public class ClientService : IClientService
     {
         private BankingDbContext _db;
-        private AccountDTO _account;
-        private IMapper _mapper;
 
-        public ClientService(AccountDTO account, BankingDbContext db, IMapper mapper)
+        public ClientService(BankingDbContext db)
         {
-            _account = account;
             _db = db;
-            _mapper = mapper;
         }
 
-        public void CreateBankAccount(BankAccountType bankAccountType)
+        public void CreateBankAccount(Account account, BankAccountType bankAccountType)
         {
-            BankAccountDTO bankAccount = new BankAccountDTO()
+            BankAccount bankAccount = new BankAccount()
             {
+                IBAN = GenerateIBAN(),
                 DateCreate = DateTime.Now,
-                Balance = 0m,
+                Balance = 10000m,
                 AccountType = bankAccountType,
-                AccountId = _account.Id,
-                Account = _account,
-                Cards = new List<CardDTO>(),
-                Credits = new List<CreditDTO>(),
-                Transactions = new List<TransactionDTO>(),
+                AccountId = account.Id,
+                Account = account,
+                Cards = new List<Card>(),
+                Credits = new List<Credit>(),
+                Transactions = new List<Transaction>(),
                 IsFrozen = false,
             };
 
-            _account.BankAccounts.Add(bankAccount);
+            if (account.BankAccounts is null)
+            {
+                account.BankAccounts = new List<BankAccount>();
+            }
 
-            BankAccount ba = _mapper.Map<BankAccount>(bankAccount);
-            _db.BankAccounts.Add(ba);
-            _db.SaveChanges();
+            account.BankAccounts.Add(bankAccount);
+            _db.BankAccounts.AddAsync(bankAccount);
+            _db.SaveChangesAsync();
+        }
+
+        private string GenerateIBAN()
+        {
+            Random random = new Random();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 28; i++)
+            {
+                int r = random.Next(0, 10);
+                sb.Append(r);
+            }
+
+            return sb.ToString();
         }
     }
 }

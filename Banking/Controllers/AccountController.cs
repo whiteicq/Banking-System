@@ -5,6 +5,7 @@ using DataLayer.EF;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DataLayer.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Banking.Controllers
 {
@@ -20,11 +21,15 @@ namespace Banking.Controllers
         }
 
         [HttpGet]
-        public IActionResult MyAccount() 
+        [Authorize(Roles = "Client")]
+        public IActionResult MyAccount(Account account) 
         {
-            int userId = (int)TempData["userId"]!; // при обновлении страницы TempData очищается
-            AccountDTO account = _mapper.Map<AccountDTO>(_db.Accounts.Find(userId)); 
-
+            string name = HttpContext.User.Identity.Name;
+            if (!(account.UserName == name))
+            {
+                return Unauthorized();
+            }
+            
             return View(account);
         }
     }

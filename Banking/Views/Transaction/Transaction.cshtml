@@ -1,0 +1,15 @@
+﻿<form asp-controller="Transaction" asp-action="TakeTransaction">
+    <div class="form-group">
+        <label for="iban">Номер счета IBAN</label>
+        <input name="iban" type="text" class="form-control" id="iban" required placeholder="Введите номер счета IBAN" >
+    </div>
+    <div class="form-group">
+        <label for="amount">Сумма операции</label>
+        <input name="sum" type="number" class="form-control" id="amount" placeholder="Введите сумму операции" required>
+    </div>
+    <div class="form-group">
+        <label for="description">Описание транзакции</label>
+        <input name="description" type="text" class="form-control" id="description" placeholder="Введите описание транзакции">
+    </div>
+    <button type="submit" class="btn btn-primary">Отправить</button>
+</form>

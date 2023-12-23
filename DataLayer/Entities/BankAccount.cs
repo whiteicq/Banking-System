@@ -1,6 +1,7 @@
 ﻿using DataLayer.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -14,6 +15,8 @@ namespace DataLayer
         public int Id { get; set; }
         [Column(TypeName = "varchar(20)")]
         public BankAccountType AccountType { get; set; }
+        [MaxLength(28), MinLength(28)]
+        public string IBAN { get; set; } = null!;
         public decimal Balance { get; set; }
         public DateTime DateCreate { get; set; }
         public Account Account { get; set; } = null!;

@@ -4,16 +4,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataLayer.Entities;
+using DataLayer;
 
 namespace BusinessLogicLayer.Interfaces
 {
     public interface IManagementOperations
     {
-        void AcceptRequestCredit(CreditDTO requestCredit);
-        void DeclineRequestCredit(CreditDTO requestCredit);
+        void AcceptRequestCredit(Account manager,Credit requestCredit);
+        void DeclineRequestCredit(Account manager, Credit requestCredit);
         void FreezeBankAccount(int bankAccountId);
         void UnFreezeBankAccount(int bankAccountId);
-        IEnumerable<TransactionDTO> GetTransactions(BankAccountDTO bankAccount);
-        IEnumerable<CreditDTO> GetCreditHistory(BankAccountDTO bankAccount);
+        IEnumerable<Transaction> GetTransactions(BankAccount bankAccount);
+        IEnumerable<Credit> GetCreditHistory(BankAccount bankAccount);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using DataLayer;
+using DataLayer.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IClientService
     {
-        void CreateBankAccount(BankAccountType bankAccountType);
+        void CreateBankAccount(Account account, BankAccountType bankAccountType);
     }
 }

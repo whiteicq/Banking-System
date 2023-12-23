@@ -1,7 +1,14 @@
 ﻿using BusinessLogicLayer.Interfaces;
 using DataLayer.EF;
 using DataLayer.Entities;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.JSInterop.Implementation;
+using Microsoft.Identity.Client;
+using Microsoft.EntityFrameworkCore;
 
 namespace Banking.Controllers
 {
@@ -22,51 +29,45 @@ namespace Banking.Controllers
         }
 
         [HttpPost]
-        public IActionResult Authentificate(string nickname, string password)
+        public IActionResult Login(string nickname, string password)
         {
-            if (_authService.Authentificate(nickname, password))
+            if (!_authService.Authentificate(nickname, password))
             {
-                int userId = _db.Accounts.FirstOrDefault(a => a.UserName == nickname)!.Id;
-                string token = _authService.GenerateToken(userId);
-                /*return Ok(new { token });*/
-                return Authorization(token, userId);
+                return BadRequest("Invalid user name or password");
             }
 
-            return Unauthorized();
-        }
-
-        [HttpGet]
-        public IActionResult Authorization(string token, int userId)
-        {
-            // Получение заголовка "Authorization" из запроса
-            /*string token = Request.Headers["Authorization"];*/
-
-            if (!string.IsNullOrEmpty(token))
+            var account = _db.Accounts.FirstOrDefault(a => a.UserName == nickname);
+            if (account is null)
             {
-                // Проверка валидности токена
-                bool isValid = _authService.ValidateToken(token);
-
-                if (isValid)
-                {
-                    // Получение роли пользователя из токена
-                    string role = "Client"; // Здесь можно использовать аутентифицированного пользователя для получения его роли
-
-                    // Проверка авторизации пользователя
-                    bool isAuthorized = _authService.Authorize(token, role);
-
-                    if (isAuthorized)
-                    {
-                        // Возвращаем информацию о пользователе
-                        /*return Ok(new { username = User.Identity.Name });*/
-                        // тут редирект на главную
-                        TempData["userId"] = userId;
-                        
-                        return RedirectToAction("MyAccount", "Account");
-                    }
-                }
+                return Unauthorized();
             }
 
-            return Unauthorized(); // Недействительный токен или недостаточно прав для доступа
+            CreateCookie(account);
+
+            return RedirectToAction("MyAccount", "Account", account);    
+            
         }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login", "Account");
+        }
+
+        private void CreateCookie(Account account)
+        {
+            // создаем один claim
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimsIdentity.DefaultNameClaimType, account.UserName),
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, account.Role.ToString())
+            };
+
+            // создаем объект ClaimsIdentity
+            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+            // установка аутентификационных куки
+            HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+        }
+
     }
 }

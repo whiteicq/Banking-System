@@ -21,35 +21,21 @@ namespace BusinessLogicLayer.Services
 
     public class BankAccountService : IFInancialOperations
     {
-        private BankAccountDTO _bankAccount;
         private BankingDbContext _db;
-        private IMapper _mapper;
-        public BankAccountService(BankAccountDTO bankAccount, BankingDbContext dbContext, IMapper mapper)
+
+        public BankAccountService(BankingDbContext dbContext)
         {
-            _bankAccount = bankAccount;
             _db = dbContext;
-            _mapper = mapper;
         }
 
-        public decimal Balance
+        public decimal GetBalance(BankAccount bankAccount)
         {
-            get
-            {
-               return _bankAccount.Balance;
-            }
-
-            set
-            {
-                if (value > 0)
-                {
-                    _bankAccount.Balance = value;
-                }
-            }
+            return bankAccount.Balance;
         }
 
-        public CardDTO CreateCard()
+        public Card CreateCard(BankAccount bankAccount)
         {
-            if (_bankAccount.IsFrozen)
+            if (bankAccount.IsFrozen)
             {
                 throw new InvalidOperationException("Current bank account is frozen");
             }
@@ -69,89 +55,94 @@ namespace BusinessLogicLayer.Services
                 cvv.Append(rndCvv);
             }
 
-            CardDTO card = new CardDTO()
+            Card card = new Card()
             {
                 CardNumber = cardNumber.ToString(),
                 Cvv = cvv.ToString(),
                 DateExpiration = DateTime.Now.AddYears(4),
-                BankAccountId = _bankAccount.Id,
-                BankAccount = _bankAccount
+                BankAccountId = bankAccount.Id
             };
 
             return card;
         }
 
-        public void LinkCard(CardDTO card)
+        public void LinkCard(BankAccount bankAccount, Card card)
         {
-            if (_bankAccount.IsFrozen)
+            if (bankAccount.IsFrozen)
             {
                 throw new InvalidOperationException("Current bank account is frozen");
             }
 
-            _bankAccount.Cards.Add(card);
-            var dalCard = _mapper.Map<Card>(card);
-            _db.Cards.Add(dalCard);
-            _db.SaveChanges();
+            bankAccount.Cards.Add(card);
+            _db.SaveChangesAsync();
         }
 
         // наверное передавать заявку Менеджеру надо
-        public CreditDTO TakeRequestCredit(decimal sum, int term, string description = null!) // в конце метода должна быть оформлена заявка, а не сам кредит (далее делом за менеджером)
+        public Credit TakeRequestCredit(BankAccount bankAccount, decimal sum, int term, string description = null!) // в конце метода должна быть оформлена заявка, а не сам кредит (далее дело за менеджером)
         {
-            if (_bankAccount.IsFrozen)
+            if (bankAccount.IsFrozen)
             {
                 throw new InvalidOperationException("Current bank account is frozen");
             }
 
-            CreditDTO requestCredit = new CreditDTO()
+            Credit requestCredit = new Credit()
             {
                 SumCredit = sum,
                 InterestRate = 13.0f,
                 CreditApprovalDate = DateTime.Now,
-                BankAccountId = _bankAccount.Id,
+                BankAccountId = bankAccount.Id,
                 CreditTerm = term,
                 Status = CreditStatus.Question,
                 Description = description
             };
 
-            _bankAccount.Credits.Add(requestCredit);
-            Credit credit = _mapper.Map<Credit>(requestCredit);
-            _db.Credits.Add(credit);
-            _db.SaveChanges();
+            bankAccount.Credits.Add(requestCredit);
+            _db.SaveChangesAsync();
 
             return requestCredit;
         }
         
-        public void TakeTransaction(BankAccountDTO recipientBankAccount, decimal sum, string description = null!)
+        public void TakeTransaction(BankAccount senderBankAccount, BankAccount recipientBankAccount, decimal sum, string description = null!)
         {
-            if (_bankAccount.IsFrozen)
+            if (senderBankAccount.IsFrozen)
             {
-                throw new InvalidOperationException("Current bank account is frozen");
+                throw new InvalidOperationException("Sender bank account is frozen");
             }
 
-            TransactionDTO transaction = new TransactionDTO()
+            if (recipientBankAccount.IsFrozen)
+            {
+                throw new InvalidOperationException("Recipient bank account is frozen");
+            }
+
+            DataLayer.Entities.Transaction transactionForSender = new DataLayer.Entities.Transaction()
             {
                 DateTransaction = DateTime.Now,
                 SumTransaction = sum,
-                RecipientBankAccount = recipientBankAccount.Id,
-                SenderBankAccount = _bankAccount.Id,
+                BankAccountId = senderBankAccount.Id,
                 Description = description,
-                BankAccountId = _bankAccount.Id
+                TransactionType = TransactionType.Outgoing
+
+            };
+
+            DataLayer.Entities.Transaction transactionForRecipient = new DataLayer.Entities.Transaction()
+            {
+                DateTransaction = DateTime.Now,
+                SumTransaction = sum,
+                BankAccountId = recipientBankAccount.Id,
+                Description = description,
+                TransactionType = TransactionType.Incoming
             };
 
             using (var scope = new TransactionScope(TransactionScopeOption.Required))
             {
-                Balance -= sum;
+                senderBankAccount.Balance -= sum;
                 recipientBankAccount.Balance += sum;
                 scope.Complete();
             }
-            _db.BankAccounts.Find(_bankAccount).Balance -= sum;
-            _db.SaveChanges();
-            // также отображение в бд для пополненного счета получателя
-
-            var DALtransaction = _mapper.Map<DataLayer.Entities.Transaction>(transaction);
-            _db.Transactions.Add(DALtransaction);
-            _db.SaveChanges();
-            _bankAccount.Transactions.Add(transaction);
+            
+            senderBankAccount.Transactions.Add(transactionForSender);
+            recipientBankAccount.Transactions.Add(transactionForRecipient);
+            _db.SaveChangesAsync();
         }
 
         // бахнуть метод для внесения взноса за кредит? (мб связать с событиями (типа когда наступает срок выплаты по кредиту
@@ -159,14 +150,14 @@ namespace BusinessLogicLayer.Services
         // Сделать СПЕЦ Счет для оплаты кредита (обычный счет, но будет передавать готовую сумму с учетом процентов)?
 
         // разовая оплата кредита (месячная)
-        public void MakeCreditPayment(CreditDTO approvedCredit)
+        public void MakeCreditPayment(BankAccount bankAccount, Credit approvedCredit)
         {
-            if (_bankAccount.IsFrozen)
+            if (bankAccount.IsFrozen)
             {
                 throw new InvalidOperationException("Current bank account is frozen");
             }
 
-            CreditDTO currentCredit = _bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);
+            Credit currentCredit = bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);
 
             if (currentCredit.Status != CreditStatus.Active)
             {
@@ -178,23 +169,28 @@ namespace BusinessLogicLayer.Services
             using (var scope = new TransactionScope(TransactionScopeOption.Required))
             {
                 // потом добавить зачисление на спец счет банка для кредитов
-                Balance -= sumCreditPayment;
+                bankAccount.Balance -= sumCreditPayment;
                 scope.Complete();
             }
 
-            _db.BankAccounts.Find(_bankAccount).Balance -= sumCreditPayment;
-            _db.SaveChanges();
+            _db.BankAccounts.Find(bankAccount).Balance -= sumCreditPayment;
+            _db.SaveChangesAsync();
         }
 
         // полная выплата кредита за раз
-        public void RepayFullCredit(CreditDTO approvedCredit)
+        public void RepayFullCredit(BankAccount bankAccount, Credit approvedCredit)
         {
-            if (_bankAccount.IsFrozen)
+            if (bankAccount.IsFrozen)
             {
                 throw new InvalidOperationException("Current bank account is frozen");
             }
 
-            CreditDTO currentCredit = _bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);
+            Credit currentCredit = bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);
+
+            if (currentCredit is null)
+            {
+                throw new InvalidOperationException("Credit is not exist");
+            }
 
             if (currentCredit.Status != CreditStatus.Active)
             {
@@ -206,11 +202,11 @@ namespace BusinessLogicLayer.Services
             using (var scope = new TransactionScope(TransactionScopeOption.Required))
             {
                 // потом добавить зачисление на спец счет банка для кредитов
-                Balance -= fullSum;
+                bankAccount.Balance -= fullSum;
                 scope.Complete();
             }
 
-            _db.BankAccounts.Find(_bankAccount).Balance -= fullSum;
+            _db.BankAccounts.Find(bankAccount)!.Balance -= fullSum;
             _db.SaveChanges();
         }
 

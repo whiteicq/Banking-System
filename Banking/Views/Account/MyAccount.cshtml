@@ -1,13 +1,18 @@
-﻿@model AccountDTO
+﻿@model Account
 
 <div class="container">
+    <h1>Добро пожаловать, @Model.UserName</h1>
     <h1>Мой аккаунт</h1>
     <h2>@Model.UserName</h2>
     <h2>@Model.Email</h2>
     <h2>@Model.PhoneNumber</h2>
     <h2>Счета:</h2>
-    @foreach(var ba in Model.BankAccounts)
+    @if(Model.BankAccounts is not null)
     {
-        <h3>ba</h3>
+        @foreach(var ba in Model.BankAccounts)
+        {
+            <h3>@ba</h3>
+        }
     }
 </div>
+

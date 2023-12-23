@@ -4,6 +4,7 @@ using DataLayer.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(BankingDbContext))]
-    partial class BankingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231219223314_AddIBANtoBankAccount")]
+    partial class AddIBANtoBankAccount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,11 +45,6 @@ namespace DataLayer.Migrations
 
                     b.Property<DateTime>("DateCreate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("IBAN")
-                        .IsRequired()
-                        .HasMaxLength(28)
-                        .HasColumnType("nvarchar(28)");
 
                     b.Property<bool>("IsFrozen")
                         .HasColumnType("bit");
@@ -105,18 +103,6 @@ namespace DataLayer.Migrations
                         .IsUnique();
 
                     b.ToTable("Accounts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 40,
-                            DateBirth = new DateTime(2002, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "manager@mail.ru",
-                            HashPassword = "5994471ABB01112AFCC18159F6CC74B4F511B99806DA59B3CAF5A9C173CACFC5",
-                            PhoneNumber = "+375290000000",
-                            Role = "Manager",
-                            UserName = "manager"
-                        });
                 });
 
             modelBuilder.Entity("DataLayer.Entities.Card", b =>
@@ -205,12 +191,14 @@ namespace DataLayer.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("RecipientBankAccount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SenderBankAccount")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("SumTransaction")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("TransactionType")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
 

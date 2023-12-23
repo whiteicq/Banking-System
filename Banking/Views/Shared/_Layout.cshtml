@@ -26,18 +26,26 @@
                             <a class="nav-link" href="https://www.bsuir.by/">О нас</a>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                               role="button" data-toggle="dropdown" aria-haspopup="true"
+                               aria-expanded="false">
                                 Услуги
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="#">Открыть счёт</a></li>
-                                <li><a class="dropdown-item" href="#">Оформить кредит</a></li>
-                                <li><a class="dropdown-item" href="#">Провести транзакцию</a></li>
-                            </ul>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <a class="dropdown-item" asp-controller="BankAccount" asp-action="BankAccount">Открыть счёт</a>
+                                <a class="dropdown-item" href="#">Оформить кредит</a>
+                                <a class="dropdown-item" asp-controller="Transaction" asp-action="Transaction">Провести транзакцию</a>
+                            </div>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Контакты</a>
                         </li>
+                        @if(User.Identity is not null)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="MyAccount">Мой аккаунт</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -64,4 +72,8 @@
         </div>
     </footer>
 </body>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </html>

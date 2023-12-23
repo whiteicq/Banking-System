@@ -19,9 +19,18 @@ namespace BusinessLogicLayer.Services
             _db = db;
         }
 
-        public void CreateAccount(string nickname, string email, string password, string phoneNumber, DateTime dateBirth)
+        public Account CreateAccount(string nickname, string email, string password, string phoneNumber, DateTime dateBirth)
         {
-            Account newAccount = new Account()
+            if (IsAccountExistsByEmail(email))
+            {
+                throw new InvalidOperationException("Account with this email already exists");
+            }
+            if (IsAccountExistsByUsername(nickname))
+            {
+                throw new InvalidOperationException("Account with this user name already exists");
+            }
+
+            Account newManager = new Account()
             {
                 UserName = nickname,
                 Email = email,
@@ -31,8 +40,10 @@ namespace BusinessLogicLayer.Services
                 DateBirth = dateBirth
             };
 
-            _db.Accounts.Add(newAccount);
-            _db.SaveChanges();
+            _db.Accounts.Add(newManager);
+            _db.SaveChangesAsync();
+
+            return newManager;
         }
 
         private bool IsAccountExistsByEmail(string email)

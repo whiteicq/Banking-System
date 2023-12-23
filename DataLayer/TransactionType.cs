@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogicLayer.DTOModels
+namespace DataLayer
 {
-    public enum Roles
+    public enum TransactionType
     {
-        Client, 
-        Manager,
-        Administrator
+        Incoming,
+        Outgoing
     }
 }

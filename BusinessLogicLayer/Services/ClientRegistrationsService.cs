@@ -21,7 +21,7 @@ namespace BusinessLogicLayer.Services
             _db = db;
         }
 
-        public void CreateAccount(string nickname, string email, string password, string phoneNumber, DateTime dateBirth)
+        public Account CreateAccount(string nickname, string email, string password, string phoneNumber, DateTime dateBirth)
         {
             // уникальность ника, почты и телефона гарантируются на уровне бд (???)
             if (IsAccountExistsByEmail(email))
@@ -44,8 +44,10 @@ namespace BusinessLogicLayer.Services
                 BankAccounts = new List<DataLayer.BankAccount>()
             };
 
-            _db.Accounts.Add(newAccount);
-            _db.SaveChanges();
+            _db.Accounts.AddAsync(newAccount);
+            _db.SaveChangesAsync();
+
+            return newAccount;
         }
 
         private bool IsAccountExistsByEmail(string email)

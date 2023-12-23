@@ -11,17 +11,17 @@ using System.Runtime.CompilerServices;
 using DataLayer.EF;
 using DataLayer.Entities;
 using System.Security.Cryptography;
+using Microsoft.Extensions.Configuration;
 
 namespace BusinessLogicLayer.Services
 {
     public class AuthentificationService : IAuthService
     {
         private BankingDbContext _db;
-        private readonly string _jwtSecret;
-        public AuthentificationService(BankingDbContext db, string jwtSecret)
+
+        public AuthentificationService(BankingDbContext db)
         {
             _db = db;
-            _jwtSecret = jwtSecret;
         }
         public bool Authentificate(string username, string password)
         {
@@ -35,78 +35,6 @@ namespace BusinessLogicLayer.Services
             return account.HashPassword == hashPassword;   
         }
 
-        public bool Authorize(string token, string requiredRole)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler(); // Создаем объект для работы с JWT токенами
-            var key = Encoding.ASCII.GetBytes(_jwtSecret); // Преобразуем секретный ключ в байтовый массив
-            try
-            {
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key), // Устанавливаем секретный ключ для проверки подписи токена
-                    ValidateIssuer = false, // Не проверяем издателя токена
-                    ValidateAudience = false, // Не проверяем аудиторию токена
-                    ClockSkew = TimeSpan.Zero // Требуем точное соответствие времени токена
-                };
-
-                var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
-                var roleClaim = claimsPrincipal.FindFirst(ClaimTypes.Role); // Ищем утверждение роли в токене
-
-                // Проверяем, соответствует ли роль указанной требуемой роли
-                if (roleClaim != null && roleClaim.Value == requiredRole)
-                {
-                    return true; // Авторизация успешна
-                }
-                return false; // Недостаточно прав для авторизации
-            }
-            catch
-            {
-                return false; // Ошибка при авторизации
-            }
-        }
-
-        public string GenerateToken(int userId)
-        {
-            Account currentAccount = _db.Accounts.Find(userId)!; // получаем аккаунт для которого будем генерить токен (?)
-            var tokenHandler = new JwtSecurityTokenHandler(); // Создаем объект для работы с JWT токенами
-            var key = Encoding.ASCII.GetBytes(_jwtSecret); 
-            var tokenDescriptor = new SecurityTokenDescriptor()
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, userId.ToString()), // Устанавливаем идентификатор пользователя в качестве идентификационного токена
-                    new Claim(ClaimTypes.Role, currentAccount.Role.ToString()) // возможно спорный момент
-                }),
-                Expires = DateTime.UtcNow.AddDays(7), // Устанавливаем срок действия токена на 7 дней
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature) // Устанавливаем подпись токена с использованием секретного ключа
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor); // создаем токен
-
-            return tokenHandler.WriteToken(token); // токен в строковом представлении
-        }
-
-        public bool ValidateToken(string token)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler(); // Создаем объект для работы с JWT токенами
-            var key = Encoding.ASCII.GetBytes(_jwtSecret); // Преобразуем секретный ключ в байтовый массив
-            try
-            {
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key), // Устанавливаем секретный ключ для проверки подписи токена
-                    ValidateIssuer = false, // Не проверяем издателя токена
-                    ValidateAudience = false, // Не проверяем аудиторию токена
-                    ClockSkew = TimeSpan.Zero // Требуем точное соответствие времени токена
-                }, out SecurityToken validatedToken);
-                return true; // Токен является валидным
-            }
-            catch
-            {
-                return false; // Токен недействителен
-            }
-        }
+        
     }
 }

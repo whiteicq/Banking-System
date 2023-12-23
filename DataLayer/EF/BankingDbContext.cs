@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,6 +22,7 @@ namespace DataLayer.EF
         public BankingDbContext(string connectionString)
         {
             _connectionString = connectionString;
+            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -28,37 +30,9 @@ namespace DataLayer.EF
             optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=BankingDb;Trusted_Connection=True;MultipleActiveResultSets=true");
         }
 
-        /*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=BankingDb;Trusted_Connection=True;");
-        }*/
-
-        /*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                IConfigurationRoot configuration = new ConfigurationBuilder()
-                   .SetBasePath(Directory.GetCurrentDirectory())
-                   .AddJsonFile("appsettings.json")
-                   .Build();
-                var connectionString = configuration.GetConnectionString("DefaultConnection");
-                optionsBuilder.UseSqlServer(connectionString);
-            }
-        }*/
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<BankAccount>().Property(ba => ba.AccountType).HasConversion<string>();
-            /*modelBuilder.Entity<Account>()
-                .HasOne(a => a.Administrator)
-                .WithOne(a => a.Account)
-                .HasForeignKey<Administrator>(a => a.)*/
-
-/*            modelBuilder.Entity<Account>()
-                .HasOne(a => a.Role)
-                .WithOne(r => r.Account)
-                .HasForeignKey<Role>(r => r.AccountId);
-*/
             modelBuilder.Entity<BankAccount>()
                 .Property(b => b.Balance)
                 .HasColumnType("decimal(18,2)");
@@ -78,12 +52,8 @@ namespace DataLayer.EF
                 .WithMany(a => a.BankAccounts)
                 .HasForeignKey(b => b.AccountId);
 
-            /*modelBuilder.Entity<Account>()
-                .HasOne(a => a.Role)
-                .WithOne(r => r.Account)                 
-                .HasForeignKey<Role>(r => r.AccountId);*/
-
             modelBuilder.Entity<Account>().Property(account => account.Role).HasConversion<string>();
+
 
 
             modelBuilder.Entity<BankAccount>()
@@ -103,7 +73,22 @@ namespace DataLayer.EF
 
             modelBuilder.Entity<Transaction>()
                 .ToTable(t => t.HasCheckConstraint("SumTransaction", "SumTransaction >= 0"));
+
+            modelBuilder.Entity<Transaction>().Property(t => t.TransactionType).HasConversion<string>();
+
+            // добавим дефолтного модератора для демонстрации
+            modelBuilder.Entity<Account>().HasData(new Account()
+            {
+                Id = 40,
+                UserName = "manager",
+                PhoneNumber = "+375290000000",
+                Email = "manager@mail.ru",
+                HashPassword = string.Join("", SHA256.HashData(Encoding.UTF8.GetBytes("12345")).Select(x => x.ToString("X2"))),
+                Role = Roles.Manager,
+                DateBirth = DateTime.Parse("01/01/2002")
+            });
         }
+
         public DbSet<Account> Accounts { get; set; }
         public DbSet<BankAccount> BankAccounts { get; set; }
         public DbSet<Credit> Credits { get; set; }

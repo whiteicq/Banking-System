@@ -8,83 +8,85 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 // рефакт
 namespace BusinessLogicLayer.Services
 {
     public class ManagementService : IManagementOperations
     {
-        private AccountDTO _manager;
         private BankingDbContext _db;
-        private IMapper _mapper;
-        private List<BankAccountDTO> _bankAccounts;
-        public ManagementService(AccountDTO manager, BankingDbContext dbContext, IMapper mapper)
+        public ManagementService(BankingDbContext dbContext)
         {
             /*if(AccountDTO)*/ // добавить проверку роли чтобы Акк был Манагером (ДТО исправить)
-            _manager = manager;
             _db = dbContext;
-            _mapper = mapper;
-            
-            foreach (var ba in _db.BankAccounts)
+        }
+
+        private bool IsManager(Account manager)
+        {
+            return manager.Role == Roles.Manager;
+        }
+
+        public void AcceptRequestCredit(Account manager, Credit requestCredit)
+        {
+            if (!IsManager(manager))
             {
-                _bankAccounts.Add(_mapper.Map<BankAccountDTO>(ba));
+                throw new Exception("This account is not manager");
+            }
+
+            if (requestCredit.Status == CreditStatus.Question)
+            {
+                BankAccount bankAccount = _db.BankAccounts.Find(requestCredit.BankAccountId)!;
+                bankAccount.Credits.FirstOrDefault(credit => credit.Id == requestCredit.Id).Status = CreditStatus.Active;
+                _db.SaveChanges();
+                /*BankAccount acc = _bankAccounts.Find(c => c.Credits.Contains(requestCredit));
+                acc.Credits.Find(credit => credit.Id == requestCredit.Id).Status = CreditStatus.Active;
+
+                *//*Credit approveCredit = _db.Credits.Find(requestCredit.Id);
+                approveCredit.Status = CreditStatus.Active;*//*
+                _db.SaveChangesAsync();*/
             }
         }
 
-        public void AcceptRequestCredit(CreditDTO requestCredit)
+        public void DeclineRequestCredit(Account manager, Credit requestCredit)
         {
-            if (requestCredit.Status == CreditStatus.Question)
+            if (IsManager(manager))
             {
-                BankAccountDTO acc = _bankAccounts.Find(c => c.Credits.Contains(requestCredit));
-                acc.Credits.Find(credit => credit.Id == requestCredit.Id).Status = CreditStatus.Active;
-
-                Credit approveCredit = _db.Credits.Find(requestCredit.Id);
-                approveCredit.Status = CreditStatus.Active;
-                _db.SaveChanges();
+                throw new Exception("This account is not manager");
             }
-        }
 
-        public void DeclineRequestCredit(CreditDTO requestCredit)
-        {
             if (requestCredit.Status == CreditStatus.Question)
             {
-                BankAccountDTO acc = _bankAccounts.Find(c => c.Credits.Contains(requestCredit));
-                acc.Credits.Find(credit => credit.Id == requestCredit.Id).Status = CreditStatus.Active;
-
-                Credit declineCredit = _db.Credits.Find(requestCredit.Id);
-                declineCredit.Status = CreditStatus.Canceled;
+                BankAccount bankAccount = _db.BankAccounts.Find(requestCredit.BankAccountId)!;
+                bankAccount.Credits.FirstOrDefault(credit => credit.Id == requestCredit.Id).Status = CreditStatus.Canceled;
                 _db.SaveChanges();
+                /*Credit declineCredit = _db.Credits.Find(requestCredit.Id);
+                declineCredit.Status = CreditStatus.Canceled;*/
             }
         }
 
         public void FreezeBankAccount(int bankAccountId)
         {
-            BankAccountDTO unFrozenBankAccount = _bankAccounts.Find(ba => ba.Id == bankAccountId);
+            BankAccount unFrozenBankAccount = _db.BankAccounts.Find(bankAccountId);
             unFrozenBankAccount.IsFrozen = true;
-
-            BankAccount dbUnFrozenBankAccount = _db.BankAccounts.Find(bankAccountId);
-            dbUnFrozenBankAccount.IsFrozen = true;
-            _db.SaveChanges();
+            _db.SaveChangesAsync();
         }
 
         public void UnFreezeBankAccount(int bankAccountId)
         {
-            BankAccountDTO frozenBankAccount = _bankAccounts.Find(ba => ba.Id == bankAccountId);
+            BankAccount frozenBankAccount = _db.BankAccounts.Find(bankAccountId);
             frozenBankAccount.IsFrozen = false;
-
-            BankAccount dbFrozenBankAccount = _db.BankAccounts.Find(bankAccountId);
-            dbFrozenBankAccount.IsFrozen = true;
-            _db.SaveChanges();
+            _db.SaveChangesAsync();
         }
 
-        // по хорошему, кредитную историю нужно смотреть конкретно по Аккаунту
+        // по-хорошему, кредитную историю нужно смотреть конкретно по Аккаунту
         // (типо по всем его Счетам смотреть кредиты)
-        public IEnumerable<CreditDTO> GetCreditHistory(BankAccountDTO bankAccount)
+        public IEnumerable<Credit> GetCreditHistory(BankAccount bankAccount)
         {
             return bankAccount.Credits;
         }
 
-        public IEnumerable<TransactionDTO> GetTransactions(BankAccountDTO bankAccount)
+        public IEnumerable<Transaction> GetTransactions(BankAccount bankAccount)
         {
             return bankAccount.Transactions;
         }
