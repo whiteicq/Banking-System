@@ -29,9 +29,13 @@ namespace BusinessLogicLayer.Services
             {
                 bankAccount = CreateCreditBankAccount(account);
             }
+            if (bankAccountType == BankAccountType.Multicurrency)
+            {
+                bankAccount = CreateMulticurrencyBankAccount(account);
+            }
             else
             {
-                bankAccount = CreateDefaultBankAccount(account, bankAccountType);
+                bankAccount = CreateDefaultBankAccount(account);
             }
 
             if (account.BankAccounts is null)
@@ -52,6 +56,7 @@ namespace BusinessLogicLayer.Services
                 IBAN = GenerateIBAN(),
                 DateCreate = DateTime.Now,
                 Balance = 0m,
+                Currency = Currency.Ruble,
                 AccountType = BankAccountType.Credit,
                 AccountId = account.Id,
                 Account = account,
@@ -63,14 +68,36 @@ namespace BusinessLogicLayer.Services
 
             return creditBankAccount;
         }
-        private BankAccount CreateDefaultBankAccount(Account account, BankAccountType type)
+
+        private BankAccount CreateMulticurrencyBankAccount(Account account)
+        {
+            BankAccount multicurrencyBankAccount = new BankAccount()
+            {
+                IBAN = GenerateIBAN(),
+                DateCreate = DateTime.Now,
+                Balance = 500m,
+                Currency = Currency.Dollar,
+                AccountType = BankAccountType.Credit,
+                AccountId = account.Id,
+                Account = account,
+                Cards = new List<Card>(),
+                Credits = null!,
+                Transactions = new List<Transaction>(),
+                IsFrozen = false,
+            };
+
+            return multicurrencyBankAccount;
+        }
+
+        private BankAccount CreateDefaultBankAccount(Account account)
         {
             BankAccount BankAccount = new BankAccount()
             {
                 IBAN = GenerateIBAN(),
                 DateCreate = DateTime.Now,
                 Balance = 10000m,
-                AccountType = type,
+                Currency = Currency.Ruble,
+                AccountType = BankAccountType.Settlement,
                 AccountId = account.Id,
                 Account = account,
                 Cards = new List<Card>(),

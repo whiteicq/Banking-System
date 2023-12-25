@@ -18,10 +18,12 @@ namespace BusinessLogicLayer.Services
     public class AuthentificationService : IAuthService
     {
         private BankingDbContext _db;
+        private IEmailService _emailService;
 
         public AuthentificationService(BankingDbContext db)
         {
             _db = db;
+            _emailService = new EmailService();
         }
         public bool Authentificate(string username, string password)
         {
@@ -32,9 +34,20 @@ namespace BusinessLogicLayer.Services
                 throw new NullReferenceException("This user not exists");
             }
 
-            return (account.UserName == username) && (account.HashPassword == hashPassword);   
+            return (account.UserName == username) && (account.HashPassword == hashPassword);
         }
 
-        
+        private string GenerateAuthCode()
+        {
+            Random random = new Random();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 5; i++)
+            {
+                int r = random.Next(0, 10);
+                sb.Append(r);
+            }
+
+            return sb.ToString();
+        }
     }
 }

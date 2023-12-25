@@ -1,22 +1,37 @@
-﻿@model DataLayer.BankAccount 
+﻿@model Account 
 
-<div class="container">
-    @if(Model.AccountType != DataLayer.BankAccountType.Credit)
-    {
-        <h1>Оформленных заявок на кредит нет</h1>    
+<div class="container" styles="overflow: auto;">
+    @{
+        var creditBankAccount = Model.BankAccounts.Where(ba => ba.AccountType == DataLayer.BankAccountType.Credit);
     }
-
-    @if(@Model.AccountType == DataLayer.BankAccountType.Credit)
+    @foreach(var ba in creditBankAccount)
     {
-        <h1>Кредитный счёт: @Model.IBAN</h1>
-        <h2>Список кредитов:</h2>
-        @foreach(var cr in @Model.Credits)
+        @if (creditBankAccount is null)
         {
-            <h3>Статус: @cr.Status</h3>
-            <h3>Дата заявки: @cr.CreditApprovalDate</h3>
-            <h3>Сумма кредита: @cr.SumCredit</h3>
-            <h3>Срок: @cr.CreditTerm</h3>
-            <h3>Описание: @cr.Description</h3>
+            <h1>Оформленных заявок на кредит нет</h1>
+        }
+
+        @* @if (ba.AccountType == DataLayer.BankAccountType.Credit) *@
+        else
+        {
+            <h1>Кредитный счёт: @ba.IBAN</h1>
+            <h2>Список кредитов:</h2>
+            @foreach (var cr in @ba.Credits)
+            {
+                <h3>Идентификатор кредита: @cr.Id</h3>
+                <h3>Статус: @cr.Status</h3>
+                <h3>Дата заявки: @cr.CreditApprovalDate</h3>
+                <h3>Сумма кредита: @cr.SumCredit</h3>
+                <h3>Срок: @cr.CreditTerm</h3>
+                <h3>Описание: @cr.Description</h3>
+                @if (cr.Status == DataLayer.CreditStatus.Active)
+                {
+                    <a asp-controller="Credit" asp-action="MakePaymentCredit">Внести платеж</a>
+                    <a asp-controller="Credit" asp-action="MakeFullPaymentCredit">Выплатить весь кредит</a>
+                }
+                <hr />
+            }
         }
     }
+    
 </div>

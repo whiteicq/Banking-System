@@ -14,6 +14,12 @@
                 <input name="password" type="password" class="form-control" id="inputPassword" required>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="authCode" class="form-label">Код аутентификации</label>
+                <input name="authCode" type="text" class="form-control" id="authCode">
+            </div>
+        </div>
         <div class="col-12">
             <button type="submit" class="btn btn-primary" asp-controller="Login" asp-action="Login">Войти</button>
         </div>

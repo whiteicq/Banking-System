@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using DataLayer.Entities;
 using DataLayer;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper.Configuration.Conventions;
 
 namespace Banking.Controllers
 {
@@ -36,7 +37,10 @@ namespace Banking.Controllers
                 return BadRequest();
             }
 
-            _bankAccountService.TakeRequestCredit(bankAccount, sum, term, description);
+            Credit activeCredit = _bankAccountService.TakeRequestCredit(bankAccount, sum, term, description);
+
+            bankAccount.Balance += activeCredit.SumCredit;
+            _db.SaveChanges();
             // редирект на страницу кредитов мб
             return RedirectToAction("Credit", "Credit");
         }
@@ -46,10 +50,10 @@ namespace Banking.Controllers
         public IActionResult Credit()
         {
             string name = HttpContext.User.Identity.Name;
-            
+
             Account acc = _db.Accounts
-                /*.Include(acc => acc.BankAccounts)
-                .ThenInclude(ba => ba.Credits)*/
+                .Include(acc => acc.BankAccounts)
+                .ThenInclude(ba => ba.Credits)
                 .FirstOrDefault(a => a.UserName == name);
 
             if (acc.UserName != name)
@@ -57,10 +61,45 @@ namespace Banking.Controllers
                 return Unauthorized();
             }
 
-            BankAccount bankAccount = _db.BankAccounts.Include(ba => ba.Credits).FirstOrDefault(ba => ba.AccountId == acc.Id); 
-            // мб от этой хуйни попробовать ленивую загрузку?
-            // я рот ебал этого связывания EF юзлесс мусор
-            return View(bankAccount);
+            return View(acc);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Client")]
+        public IActionResult MakePaymentCredit()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Client")]
+        public IActionResult MakePaymentCredit(string iban, int creditId)
+        {
+            BankAccount bankAccount = _db.BankAccounts.FirstOrDefault(ba => ba.IBAN == iban);
+            Credit currentCredit = _db.Credits.FirstOrDefault(cr => cr.Id == creditId);
+
+            _bankAccountService.MakeCreditPayment(bankAccount, currentCredit);
+
+            return RedirectToAction("Credit", "Credit");
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Client")]
+        public IActionResult MakeFullPaymentCredit()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Client")]
+        public IActionResult MakeFullPaymentCredit(string iban, int creditId)
+        {
+            BankAccount bankAccount = _db.BankAccounts.FirstOrDefault(ba => ba.IBAN == iban);
+            Credit currentCredit = _db.Credits.FirstOrDefault(cr => cr.Id == creditId);
+
+            _bankAccountService.RepayFullCredit(bankAccount, currentCredit);
+
+            return RedirectToAction("Credit", "Credit");
         }
     }
 }

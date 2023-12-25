@@ -18,6 +18,7 @@ namespace DataLayer.Entities
         [Column(TypeName = "varchar(20)")]
         public CreditStatus Status { get; set; }
         public int BankAccountId { get; set; }
-        public string Description { get; set; } = null!;
+        public BankAccount BankAccount { get; set; }
+        public string? Description { get; set; } = null!;
     }
 }

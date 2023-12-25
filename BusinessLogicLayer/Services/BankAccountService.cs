@@ -97,7 +97,7 @@ namespace BusinessLogicLayer.Services
                 CreditApprovalDate = DateTime.Now,
                 BankAccountId = bankAccount.Id,
                 CreditTerm = term,
-                Status = CreditStatus.Question,
+                Status = CreditStatus.Active, // Для сдачи - Active, но по идее надо Question
                 Description = description
             };
 
@@ -106,7 +106,8 @@ namespace BusinessLogicLayer.Services
 
             return requestCredit;
         }
-        
+       
+
         public void TakeTransaction(BankAccount senderBankAccount, BankAccount recipientBankAccount, decimal sum, string description = null!)
         {
             if (senderBankAccount.IsFrozen)
@@ -119,6 +120,16 @@ namespace BusinessLogicLayer.Services
                 throw new InvalidOperationException("Recipient bank account is frozen");
             }
 
+            if (senderBankAccount.Currency == Currency.Dollar && recipientBankAccount.Currency == Currency.Ruble)
+            {
+                sum *= 3.30m;
+            }
+
+            if(senderBankAccount.Currency == Currency.Ruble && recipientBankAccount.Currency == Currency.Dollar)
+            {
+                sum /= 3.30m;
+            }
+
             DataLayer.Entities.Transaction transactionForSender = new DataLayer.Entities.Transaction()
             {
                 DateTransaction = DateTime.Now,
@@ -126,7 +137,6 @@ namespace BusinessLogicLayer.Services
                 BankAccountId = senderBankAccount.Id,
                 Description = description,
                 TransactionType = TransactionType.Outgoing
-
             };
 
             DataLayer.Entities.Transaction transactionForRecipient = new DataLayer.Entities.Transaction()
@@ -145,7 +155,6 @@ namespace BusinessLogicLayer.Services
                 scope.Complete();
             }
 
-            /*_db.Transactions.AddRange(transactionForSender, transactionForRecipient);*/
             senderBankAccount.Transactions.Add(transactionForSender);
             recipientBankAccount.Transactions.Add(transactionForRecipient);
             _db.SaveChanges();
@@ -163,28 +172,23 @@ namespace BusinessLogicLayer.Services
                 throw new InvalidOperationException("Current bank account is frozen");
             }
 
-            if (bankAccount.AccountType != BankAccountType.Credit)
+            /*if (bankAccount.AccountType != BankAccountType.Credit)
             {
                 throw new InvalidOperationException("Current bank account is not for credits");
             }
 
-            Credit currentCredit = bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);
+            Credit currentCredit = bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);*/
 
-            if (currentCredit.Status != CreditStatus.Active)
+            BankAccount systemBankAccount = _db.BankAccounts.FirstOrDefault(ba => ba.Id == 20);
+
+            if (approvedCredit.Status != CreditStatus.Active)
             {
                 throw new InvalidOperationException("Current credit not approved");
             }
 
-            decimal sumCreditPayment = GetSumOfMontlyPayment(currentCredit.SumCredit, currentCredit.InterestRate, currentCredit.CreditTerm);
-            
-            using (var scope = new TransactionScope(TransactionScopeOption.Required))
-            {
-                // потом добавить зачисление на спец счет банка для кредитов
-                bankAccount.Balance -= sumCreditPayment;
-                scope.Complete();
-            }
+            decimal sumCreditPayment = GetSumOfMontlyPayment(approvedCredit.SumCredit, approvedCredit.InterestRate, approvedCredit.CreditTerm);
 
-            _db.BankAccounts.Find(bankAccount).Balance -= sumCreditPayment;
+            TakeTransaction(bankAccount, systemBankAccount, sumCreditPayment, "Выплата по кредиту");
             _db.SaveChangesAsync();
         }
 
@@ -196,33 +200,29 @@ namespace BusinessLogicLayer.Services
                 throw new InvalidOperationException("Current bank account is frozen");
             }
 
-            if (bankAccount.AccountType != BankAccountType.Credit)
+            /*if (bankAccount.AccountType != BankAccountType.Credit)
             {
                 throw new InvalidOperationException("Current bank account is not for credits");
             }
 
-            Credit currentCredit = bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);
+            Credit currentCredit = bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);*/
 
-            if (currentCredit is null)
+            if (approvedCredit is null)
             {
                 throw new InvalidOperationException("Credit is not exist");
             }
 
-            if (currentCredit.Status != CreditStatus.Active)
+            if (approvedCredit.Status != CreditStatus.Active)
             {
                 throw new InvalidOperationException("Current credit not approved");
             }
+            BankAccount systemBankAccount = _db.BankAccounts.FirstOrDefault(ba => ba.Id == 20);
 
-            decimal fullSum = GetFullSumOfCredit(currentCredit.SumCredit, currentCredit.InterestRate, currentCredit.CreditTerm);
-            
-            using (var scope = new TransactionScope(TransactionScopeOption.Required))
-            {
-                // потом добавить зачисление на спец счет банка для кредитов
-                bankAccount.Balance -= fullSum;
-                scope.Complete();
-            }
+            decimal fullSum = GetFullSumOfCredit(approvedCredit.SumCredit, approvedCredit.InterestRate, approvedCredit.CreditTerm);
 
-            _db.BankAccounts.Find(bankAccount)!.Balance -= fullSum;
+            TakeTransaction(bankAccount, systemBankAccount, fullSum, "Полная выплата кредита");
+
+            approvedCredit.Status = CreditStatus.Closed;
             _db.SaveChanges();
         }
 

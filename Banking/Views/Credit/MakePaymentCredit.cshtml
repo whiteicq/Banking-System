@@ -1,0 +1,15 @@
+﻿<form asp-controller="Credit" asp-action="MakePaymentCredit">
+    <div class="form-group">
+        <label for="iban">Номер счета-отправителя IBAN:</label>
+        <input name="iban" type="text" class="form-control" id="iban1" required placeholder="Введите номер счета-отправителя IBAN">
+    </div>
+    <div class="form-group">
+        <label for="creditId">Идентификатор кредита:</label>
+        <input name="creditId" type="text" class="form-control" id="creditId" required placeholder="Введите номер кредита">
+    </div>
+    <div class="form-group">
+        <label for="description">Описание транзакции:</label>
+        <input name="description" type="text" value="Оплата по кредиту" disabled class="form-control" id="description" placeholder="Введите описание транзакции">
+    </div>
+    <button type="submit" class="btn btn-primary">Отправить</button>
+</form>

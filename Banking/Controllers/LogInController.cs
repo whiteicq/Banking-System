@@ -15,10 +15,12 @@ namespace Banking.Controllers
     public class LoginController : Controller
     {
         IAuthService _authService;
+        IEmailService _emailService;
         BankingDbContext _db;
-        public LoginController(IAuthService authService, BankingDbContext db)
+        public LoginController(IAuthService authService, IEmailService emailService, BankingDbContext db)
         {
             _authService = authService;
+            _emailService = emailService;
             _db = db;
         }
 
@@ -29,7 +31,7 @@ namespace Banking.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(string nickname, string password)
+        public IActionResult Login(string nickname, string password, string authCode)
         {
             if (!_authService.Authentificate(nickname, password))
             {
@@ -47,6 +49,18 @@ namespace Banking.Controllers
             return RedirectToAction("MyAccount", "Account", account);    
             
         }
+
+        [HttpGet]
+        public IActionResult AuthCode()
+        {
+            return View();
+        }
+
+        /*[HttpPost]
+        public IActionResult AuthCode()
+        {
+            _emailService.
+        }*/
 
         public async Task<IActionResult> Logout()
         {

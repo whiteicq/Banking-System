@@ -1,14 +1,18 @@
 ﻿<form asp-controller="Transaction" asp-action="TakeTransaction">
     <div class="form-group">
-        <label for="iban">Номер счета IBAN</label>
-        <input name="iban" type="text" class="form-control" id="iban" required placeholder="Введите номер счета IBAN" >
+        <label for="iban">Номер счета-отправителя IBAN:</label>
+        <input name="ibanSender" type="text" class="form-control" id="iban1" required placeholder="Введите номер счета-отправителя IBAN">
     </div>
     <div class="form-group">
-        <label for="amount">Сумма операции</label>
+        <label for="iban">Номер счета-получателя IBAN:</label>
+        <input name="ibanRecipient" type="text" class="form-control" id="iban2" required placeholder="Введите номер счета-получателя IBAN" >
+    </div>
+    <div class="form-group">
+        <label for="amount">Сумма операции (для мультивалютных счетов - в валюте):</label>
         <input name="sum" type="number" class="form-control" id="amount" placeholder="Введите сумму операции" required>
     </div>
     <div class="form-group">
-        <label for="description">Описание транзакции</label>
+        <label for="description">Описание транзакции:</label>
         <input name="description" type="text" class="form-control" id="description" placeholder="Введите описание транзакции">
     </div>
     <button type="submit" class="btn btn-primary">Отправить</button>

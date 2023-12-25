@@ -4,6 +4,7 @@ using DataLayer.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(BankingDbContext))]
-    partial class BankingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231225164311_AddNullableDescriptionForCredits")]
+    partial class AddNullableDescriptionForCredits
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,10 +43,6 @@ namespace DataLayer.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
                     b.Property<DateTime>("DateCreate")
                         .HasColumnType("datetime2");
 
@@ -65,19 +64,6 @@ namespace DataLayer.Migrations
                     b.ToTable("BankAccounts", t =>
                         {
                             t.HasCheckConstraint("Balance", "Balance >= 0");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 20,
-                            AccountId = 40,
-                            AccountType = "Settlement",
-                            Balance = 0.0m,
-                            Currency = "Dollar",
-                            DateCreate = new DateTime(2023, 12, 26, 1, 2, 0, 445, DateTimeKind.Local).AddTicks(9748),
-                            IBAN = "1111111111111111111111111111",
-                            IsFrozen = false
                         });
                 });
 
@@ -188,6 +174,7 @@ namespace DataLayer.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<float>("InterestRate")

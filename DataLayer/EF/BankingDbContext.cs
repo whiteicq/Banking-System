@@ -48,7 +48,7 @@ namespace DataLayer.EF
 
             modelBuilder.Entity<Account>().Property(account => account.Role).HasConversion<string>();
 
-
+            modelBuilder.Entity<BankAccount>().Property(ba => ba.Currency).HasConversion<string>();
 
             modelBuilder.Entity<BankAccount>()
                 .ToTable(t => t.HasCheckConstraint("Balance", "Balance >= 0"));
@@ -84,6 +84,20 @@ namespace DataLayer.EF
                 HashPassword = string.Join("", SHA256.HashData(Encoding.UTF8.GetBytes("12345")).Select(x => x.ToString("X2"))),
                 Role = Roles.Manager,
                 DateBirth = DateTime.Parse("01/01/2002")
+            });
+
+            // спец счет менеджера для выплаты кредитов
+            modelBuilder.Entity<BankAccount>().HasData(new BankAccount()
+            {
+                Id = 20,
+                AccountType = BankAccountType.Settlement,
+                AccountId = 40,
+                Balance = 0.0m,
+                IBAN = "1111111111111111111111111111",
+                DateCreate = DateTime.Now,
+                IsFrozen = false,
+                Cards = null!,
+                Credits = null!
             });
         }
 

@@ -22,7 +22,9 @@ namespace DataLayer
         public Account Account { get; set; } = null!;
         public int AccountId { get; set; }
         public bool IsFrozen { get; set; } = false;
-        public List<Card> Cards { get; set; } = new List<Card>();
+        [Column(TypeName = "varchar(20)")]
+        public Currency Currency { get; set; }
+        public  List<Card> Cards { get; set; } = new List<Card>();
         public List<Credit> Credits { get; set; } = new List<Credit>();
         public List<Transaction> Transactions { get; set; } = new List<Transaction>();
     }

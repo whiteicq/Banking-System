@@ -14,7 +14,8 @@
         {
             <h3>Номер счёта: @ba.IBAN</h3>
             <h3>Тип счёта: @ba.AccountType.ToString()</h3>
-            <h3>Баланс счёта @ba.Balance</h3>
+            <h3>Валюта: @ba.Currency.ToString()</h3>
+            <h3>Баланс счёта: @ba.Balance</h3>
             @if(ba.IsFrozen)
             {
                 <h3 style="color: red;">Счет заморожен</h3>

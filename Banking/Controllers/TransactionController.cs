@@ -24,10 +24,15 @@ namespace Banking.Controllers
         }
 
         [HttpPost]
-        public IActionResult TakeTransaction(string iban, decimal sum, string description)
+        public IActionResult TakeTransaction(string ibanSender, string ibanRecipient, decimal sum, string description)
         {
-            var recipientBankAccount = _db.BankAccounts.FirstOrDefault(ba => ba.IBAN == iban);
-            if (recipientBankAccount.AccountType != BankAccountType.Settlement)
+            if (ibanSender == ibanRecipient)
+            {
+                return BadRequest("Iban sender & iban recipient are equal");
+            }
+
+            var recipientBankAccount = _db.BankAccounts.FirstOrDefault(ba => ba.IBAN == ibanRecipient);
+            if (recipientBankAccount.AccountType != BankAccountType.Settlement || recipientBankAccount is null) // для кредитов потом придется убраться
             {
                 return BadRequest();
             }
@@ -38,8 +43,8 @@ namespace Banking.Controllers
                 return BadRequest();
             }
 
-            var senderBankAccount = _db.BankAccounts.FirstOrDefault(ba => ba.AccountId == acc.Id);
-            if (senderBankAccount.AccountType != BankAccountType.Settlement)
+            var senderBankAccount = _db.BankAccounts.FirstOrDefault(ba => ba.AccountId == acc.Id && ba.IBAN == ibanSender);
+            if (senderBankAccount.AccountType != BankAccountType.Settlement || recipientBankAccount is null)
             {
                 return BadRequest();
             }
