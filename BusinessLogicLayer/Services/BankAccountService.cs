@@ -102,7 +102,7 @@ namespace BusinessLogicLayer.Services
             };
 
             bankAccount.Credits.Add(requestCredit);
-            _db.SaveChangesAsync();
+            _db.SaveChanges();
 
             return requestCredit;
         }

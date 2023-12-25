@@ -38,7 +38,7 @@ namespace Banking.Controllers
                 return BadRequest();
             }
 
-            var senderBankAccount = _db.BankAccounts/*.Include(ba => ba.Transactions)*/.FirstOrDefault(ba => ba.AccountId == acc.Id);
+            var senderBankAccount = _db.BankAccounts.FirstOrDefault(ba => ba.AccountId == acc.Id);
             if (senderBankAccount.AccountType != BankAccountType.Settlement)
             {
                 return BadRequest();

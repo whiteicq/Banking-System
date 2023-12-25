@@ -24,18 +24,21 @@ namespace Banking.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Client")]
-        public IActionResult MyAccount(Account account) 
+        public IActionResult MyAccount() 
         {
             string name = HttpContext.User.Identity.Name;
-            if (!(account.UserName == name))
-            {
-                return Unauthorized();
-            }
 
             Account acc = _db.Accounts
                 .Include(acc => acc.BankAccounts)
                 .ThenInclude(ba => ba.Transactions)
                 .FirstOrDefault(a => a.UserName == name);
+
+            if (acc.UserName != name)
+            {
+                return Unauthorized();
+            }
+
+            
             return View(acc);
         }
     }

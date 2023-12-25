@@ -33,7 +33,7 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <a class="dropdown-item" asp-controller="BankAccount" asp-action="BankAccount">Открыть счёт</a>
-                                <a class="dropdown-item" asp-controller="RequestCredit" asp-action="RequestCredit">Оформить кредит</a>
+                                <a class="dropdown-item" asp-controller="Credit" asp-action="RequestCredit">Оформить кредит</a>
                                 <a class="dropdown-item" asp-controller="Transaction" asp-action="Transaction">Провести транзакцию</a>
                             </div>
                         </li>
@@ -50,7 +50,7 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <a class="dropdown-item" asp-controller="Account" asp-action="MyAccount">Мой аккаунт</a>
-                                <a class="dropdown-item" asp-controller="" asp-action="">Мои кредиты</a>
+                                <a class="dropdown-item" asp-controller="Credit" asp-action="Credit">Мои кредиты</a>
                             </div>
                         </li>
                         }

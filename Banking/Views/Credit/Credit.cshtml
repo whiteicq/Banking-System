@@ -1,0 +1,22 @@
+﻿@model DataLayer.BankAccount 
+
+<div class="container">
+    @if(Model.AccountType != DataLayer.BankAccountType.Credit)
+    {
+        <h1>Оформленных заявок на кредит нет</h1>    
+    }
+
+    @if(@Model.AccountType == DataLayer.BankAccountType.Credit)
+    {
+        <h1>Кредитный счёт: @Model.IBAN</h1>
+        <h2>Список кредитов:</h2>
+        @foreach(var cr in @Model.Credits)
+        {
+            <h3>Статус: @cr.Status</h3>
+            <h3>Дата заявки: @cr.CreditApprovalDate</h3>
+            <h3>Сумма кредита: @cr.SumCredit</h3>
+            <h3>Срок: @cr.CreditTerm</h3>
+            <h3>Описание: @cr.Description</h3>
+        }
+    }
+</div>
