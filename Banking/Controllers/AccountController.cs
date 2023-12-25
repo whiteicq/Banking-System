@@ -2,10 +2,12 @@
 using BusinessLogicLayer.DTOModels;
 using BusinessLogicLayer.Services;
 using DataLayer.EF;
+using DataLayer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DataLayer.Entities;
 using Microsoft.EntityFrameworkCore;
+using DataLayer;
 
 namespace Banking.Controllers
 {
@@ -29,8 +31,12 @@ namespace Banking.Controllers
             {
                 return Unauthorized();
             }
-            
-            return View(account);
+
+            Account acc = _db.Accounts
+                .Include(acc => acc.BankAccounts)
+                .ThenInclude(ba => ba.Transactions)
+                .FirstOrDefault(a => a.UserName == name);
+            return View(acc);
         }
     }
 }

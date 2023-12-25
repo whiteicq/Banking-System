@@ -19,7 +19,7 @@ namespace BusinessLogicLayer.Services
     // При разработке сервисов для Клиента, Менеджера и тд, каждому сервис для своего Аккаунта делать (фабрика/фабричный метод) 
     // из-за Ролей
 
-    public class BankAccountService : IFInancialOperations
+    public class BankAccountService : IFinancialOperations
     {
         private BankingDbContext _db;
 
@@ -85,6 +85,11 @@ namespace BusinessLogicLayer.Services
                 throw new InvalidOperationException("Current bank account is frozen");
             }
 
+            if (bankAccount.AccountType != BankAccountType.Credit)
+            {
+                throw new InvalidOperationException("Current bank account is not for credits");
+            }
+
             Credit requestCredit = new Credit()
             {
                 SumCredit = sum,
@@ -139,10 +144,11 @@ namespace BusinessLogicLayer.Services
                 recipientBankAccount.Balance += sum;
                 scope.Complete();
             }
-            
+
+            /*_db.Transactions.AddRange(transactionForSender, transactionForRecipient);*/
             senderBankAccount.Transactions.Add(transactionForSender);
             recipientBankAccount.Transactions.Add(transactionForRecipient);
-            _db.SaveChangesAsync();
+            _db.SaveChanges();
         }
 
         // бахнуть метод для внесения взноса за кредит? (мб связать с событиями (типа когда наступает срок выплаты по кредиту
@@ -155,6 +161,11 @@ namespace BusinessLogicLayer.Services
             if (bankAccount.IsFrozen)
             {
                 throw new InvalidOperationException("Current bank account is frozen");
+            }
+
+            if (bankAccount.AccountType != BankAccountType.Credit)
+            {
+                throw new InvalidOperationException("Current bank account is not for credits");
             }
 
             Credit currentCredit = bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);
@@ -183,6 +194,11 @@ namespace BusinessLogicLayer.Services
             if (bankAccount.IsFrozen)
             {
                 throw new InvalidOperationException("Current bank account is frozen");
+            }
+
+            if (bankAccount.AccountType != BankAccountType.Credit)
+            {
+                throw new InvalidOperationException("Current bank account is not for credits");
             }
 
             Credit currentCredit = bankAccount.Credits.Find(credit => credit.Id == approvedCredit.Id);

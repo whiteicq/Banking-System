@@ -9,7 +9,7 @@ using DataLayer.Entities;
 
 namespace BusinessLogicLayer.Interfaces
 {
-    public interface IFInancialOperations
+    public interface IFinancialOperations
     {
         decimal GetBalance(BankAccount bankAccount); // Баланс счета
         void TakeTransaction(BankAccount SenderBankAccount, BankAccount recipientBankAccount, decimal sum, string description); // Совершить транзакцию

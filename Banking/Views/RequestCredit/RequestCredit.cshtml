@@ -1,0 +1,25 @@
+﻿<div class="container">
+    <form asp-controller="RequestCredit" asp-action="TakeRequestCredit">
+        <div class="form-group">
+            <label for="iban">IBAN кредитного счета:</label>
+            <input type="text" name="iban" class="form-control" id="iban" placeholder="Введите IBAN кредитного счета" required>
+        </div>
+        <div class="form-group">
+            <label for="amount">Сумма кредита:</label>
+            <input type="text" name="sum" class="form-control" id="amount" placeholder="Введите сумму кредита" required>
+        </div>
+        <div class="form-group">
+            <label for="term">Срок кредитования (в годах):</label>
+            <input type="text" name="term" class="form-control" id="term" placeholder="Введите срок кредитования" required>
+        </div>
+        <div class="form-group">
+            <label for="percent">Процентная ставка:</label>
+            <input disabled type="text" name="percent" class="form-control" id="percent" value="13%" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание заявки кредита</label>
+            <textarea class="form-control" name="description" id="description" rows="3" placeholder="Введите описание заявки кредита"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Отправить заявку</button>
+    </form>
+</div>

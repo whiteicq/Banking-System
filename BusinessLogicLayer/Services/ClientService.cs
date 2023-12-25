@@ -23,19 +23,16 @@ namespace BusinessLogicLayer.Services
 
         public void CreateBankAccount(Account account, BankAccountType bankAccountType)
         {
-            BankAccount bankAccount = new BankAccount()
+            BankAccount bankAccount;
+
+            if (bankAccountType == BankAccountType.Credit)
             {
-                IBAN = GenerateIBAN(),
-                DateCreate = DateTime.Now,
-                Balance = 10000m,
-                AccountType = bankAccountType,
-                AccountId = account.Id,
-                Account = account,
-                Cards = new List<Card>(),
-                Credits = new List<Credit>(),
-                Transactions = new List<Transaction>(),
-                IsFrozen = false,
-            };
+                bankAccount = CreateCreditBankAccount(account);
+            }
+            else
+            {
+                bankAccount = CreateDefaultBankAccount(account, bankAccountType);
+            }
 
             if (account.BankAccounts is null)
             {
@@ -45,6 +42,44 @@ namespace BusinessLogicLayer.Services
             account.BankAccounts.Add(bankAccount);
             _db.BankAccounts.AddAsync(bankAccount);
             _db.SaveChangesAsync();
+        }
+
+
+        private BankAccount CreateCreditBankAccount(Account account)
+        {
+            BankAccount creditBankAccount = new BankAccount()
+            {
+                IBAN = GenerateIBAN(),
+                DateCreate = DateTime.Now,
+                Balance = 0m,
+                AccountType = BankAccountType.Credit,
+                AccountId = account.Id,
+                Account = account,
+                Cards = new List<Card>(),
+                Credits = new List<Credit>(),
+                Transactions = new List<Transaction>(),
+                IsFrozen = false,
+            };
+
+            return creditBankAccount;
+        }
+        private BankAccount CreateDefaultBankAccount(Account account, BankAccountType type)
+        {
+            BankAccount BankAccount = new BankAccount()
+            {
+                IBAN = GenerateIBAN(),
+                DateCreate = DateTime.Now,
+                Balance = 10000m,
+                AccountType = type,
+                AccountId = account.Id,
+                Account = account,
+                Cards = new List<Card>(),
+                Credits = new List<Credit>(),
+                Transactions = new List<Transaction>(),
+                IsFrozen = false,
+            };
+
+            return BankAccount;
         }
 
         private string GenerateIBAN()

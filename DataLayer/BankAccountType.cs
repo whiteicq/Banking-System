@@ -8,7 +8,8 @@ namespace DataLayer
 {
     public enum BankAccountType
     {
-        Settlement,
-        Credit
+        Settlement = 1,
+        Credit = 2,
+        Multicurrency = 3
     }
 }

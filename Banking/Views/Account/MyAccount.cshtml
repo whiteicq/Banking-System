@@ -1,18 +1,45 @@
 ﻿@model Account
 
-<div class="container">
+<div class="container" style="overflow: auto;">
     <h1>Добро пожаловать, @Model.UserName</h1>
     <h1>Мой аккаунт</h1>
-    <h2>@Model.UserName</h2>
-    <h2>@Model.Email</h2>
-    <h2>@Model.PhoneNumber</h2>
-    <h2>Счета:</h2>
+    <h2>Имя пользователя: @Model.UserName</h2>
+    <h2>Почта: @Model.Email</h2>
+    <h2>Номер телефона: @Model.PhoneNumber</h2>
+    <hr/>
     @if(Model.BankAccounts is not null)
     {
+        <h2>Счета:</h2>
         @foreach(var ba in Model.BankAccounts)
         {
-            <h3>@ba</h3>
+            <h3>Номер счёта: @ba.IBAN</h3>
+            <h3>Тип счёта: @ba.AccountType.ToString()</h3>
+            <h3>Баланс счёта @ba.Balance</h3>
+            @if(ba.IsFrozen)
+            {
+                <h3 style="color: red;">Счет заморожен</h3>
+            }
         }
     }
+        <hr />
+        <h2>Список транзакций:</h2>
+        @foreach(var ba in Model.BankAccounts)
+        {
+            @if(ba.Transactions is not null)
+            {
+                <h3>Номер счёта: @ba.IBAN</h3>
+                @if (ba.IsFrozen)
+                {
+                    <h3 style="color: red;">Счет заморожен</h3>
+                }
+                foreach (var tr in @ba.Transactions)
+                {
+                    <h4>Тип транзакции: @tr.TransactionType.ToString()</h4>
+                    <h4>Сумма транзакции: @tr.SumTransaction</h4>
+                    <h4>Дата проведения транзакции: @tr.DateTransaction</h4>
+                    <h4>Описание транзакции: @tr.Description</h4>
+                }
+            }
+        }
 </div>
 

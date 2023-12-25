@@ -19,12 +19,6 @@ namespace DataLayer.EF
             Database.EnsureCreated();    
         }
 
-        public BankingDbContext(string connectionString)
-        {
-            _connectionString = connectionString;
-            Database.EnsureCreated();
-        }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=BankingDb;Trusted_Connection=True;MultipleActiveResultSets=true");
@@ -58,6 +52,10 @@ namespace DataLayer.EF
 
             modelBuilder.Entity<BankAccount>()
                 .ToTable(t => t.HasCheckConstraint("Balance", "Balance >= 0"));
+
+            modelBuilder.Entity<BankAccount>()
+                .HasIndex(ba => ba.IBAN)
+                .IsUnique();
 
             modelBuilder.Entity<Account>()
                 .HasIndex(a => a.Email)

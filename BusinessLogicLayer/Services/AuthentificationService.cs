@@ -32,7 +32,7 @@ namespace BusinessLogicLayer.Services
                 throw new NullReferenceException("This user not exists");
             }
 
-            return account.HashPassword == hashPassword;   
+            return (account.UserName == username) && (account.HashPassword == hashPassword);   
         }
 
         

@@ -4,10 +4,10 @@
     <form asp-action="CreateBankAccount" asp-controller="BankAccount">
         <div class="form-group">
             <label for="accountType">Тип счета:</label>
-            <select class="form-control" id="accountType">
-                <option value="накопительный">Накопительный</option>
-                <option value="кредитный">Кредитный</option>
-                <option value="мультивалютный">Мультивалютный</option>
+            <select class="form-control" name="bankAccountType" id="accountType">
+                <option value="Settlement">Накопительный</option>
+                <option value="Credit">Кредитный</option>
+                <option value="Multicurrency">Мультивалютный</option>
             </select>
         </div>
 

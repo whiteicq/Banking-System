@@ -22,8 +22,8 @@ namespace DataLayer
         public Account Account { get; set; } = null!;
         public int AccountId { get; set; }
         public bool IsFrozen { get; set; } = false;
-        public List<Card> Cards { get; set; } = null!;
-        public List<Credit> Credits { get; set; } = null!;
-        public List<Transaction> Transactions { get; set; } = null!;
+        public List<Card> Cards { get; set; } = new List<Card>();
+        public List<Credit> Credits { get; set; } = new List<Credit>();
+        public List<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 }

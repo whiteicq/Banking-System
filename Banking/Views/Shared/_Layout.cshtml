@@ -33,7 +33,7 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <a class="dropdown-item" asp-controller="BankAccount" asp-action="BankAccount">Открыть счёт</a>
-                                <a class="dropdown-item" href="#">Оформить кредит</a>
+                                <a class="dropdown-item" asp-controller="RequestCredit" asp-action="RequestCredit">Оформить кредит</a>
                                 <a class="dropdown-item" asp-controller="Transaction" asp-action="Transaction">Провести транзакцию</a>
                             </div>
                         </li>
@@ -42,9 +42,17 @@
                         </li>
                         @if(User.Identity is not null)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="MyAccount">Мой аккаунт</a>
-                            </li>
+                            <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                               role="button" data-toggle="dropdown" aria-haspopup="true"
+                               aria-expanded="false">
+                                Аккаунт
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <a class="dropdown-item" asp-controller="Account" asp-action="MyAccount">Мой аккаунт</a>
+                                <a class="dropdown-item" asp-controller="" asp-action="">Мои кредиты</a>
+                            </div>
+                        </li>
                         }
                     </ul>
                 </div>

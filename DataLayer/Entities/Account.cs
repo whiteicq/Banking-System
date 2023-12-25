@@ -19,6 +19,6 @@ namespace DataLayer.Entities
         [Column(TypeName = "varchar(20)")]
         public Roles Role { get; set; }
         public DateTime DateBirth { get; set; }
-        public List<BankAccount>? BankAccounts { get; set; } = null!;
+        public List<BankAccount>? BankAccounts { get; set; } = new List<BankAccount>();
     }
 }

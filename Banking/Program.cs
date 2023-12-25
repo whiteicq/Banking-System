@@ -30,22 +30,25 @@ namespace Banking
 
             /*builder.Services.AddDbContext<BankingDbContext>(s => new BankingDbContext(builder.Configuration["DefaultConnection"]!));*/
             builder.Services.AddDbContext<BankingDbContext>(options => options.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=BankingDb;Trusted_Connection=True;MultipleActiveResultSets=true"));
-            builder.Services.AddSingleton(s => new BankingDbContext(builder.Configuration["ConnectionStrings:DefaultConnection"]!));
+            /*builder.Services.AddSingleton(s => new BankingDbContext(builder.Configuration["ConnectionStrings:DefaultConnection"]!));*/
             builder.Services.AddAutoMapper(typeof(BLLMappingProfile));
 
             
             builder.Services.AddScoped<AccountDTO>();
 
-            builder.Services.AddSingleton<IAuthService>(authService => new AuthentificationService(new BankingDbContext(builder.Configuration["ConnectionStrings:DefaultConnection"]!), builder.Configuration["Jwt:Key"]!, builder.Configuration));
-            builder.Services.AddScoped<IClientService, ClientService>();
+            builder.Services.AddScoped<IRegistrationService, ManagerRegistrationService>();
             builder.Services.AddScoped<IRegistrationService, ClientRegistrationService>();
-            /*builder.Services.AddScoped<IFInancialOperations, BankAccountService>();*/
-
+            builder.Services.AddScoped<IAuthService, AuthentificationService>();
+            builder.Services.AddScoped<IClientService, ClientService>();
+            builder.Services.AddScoped<IFinancialOperations, BankAccountService>();
+            builder.Services.AddScoped<IManagementOperations, ManagementService>();
+            builder.Services.AddSingleton<IEmailService, EmailService>();
             // Для куки
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options => //CookieAuthenticationOptions
                 {
-                    options.LoginPath = new PathString("/LogIn/Login"); // путь перенаправление анонимных пользователей
+                    options.LoginPath = new PathString("/Login/Login"); // путь перенаправление анонимных пользователей
+                    options.Cookie.Name = "AuthCookie";
                 });
 
             var app = builder.Build();

@@ -12,11 +12,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Banking.Controllers
 {
-    public class LogInController : Controller
+    public class LoginController : Controller
     {
         IAuthService _authService;
         BankingDbContext _db;
-        public LogInController(IAuthService authService, BankingDbContext db)
+        public LoginController(IAuthService authService, BankingDbContext db)
         {
             _authService = authService;
             _db = db;
@@ -42,7 +42,7 @@ namespace Banking.Controllers
                 return Unauthorized();
             }
 
-            CreateCookie(account);
+            SignInUser(account);
 
             return RedirectToAction("MyAccount", "Account", account);    
             
@@ -54,19 +54,18 @@ namespace Banking.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        private void CreateCookie(Account account)
+        private async void SignInUser(Account account)
         {
-            // создаем один claim
             var claims = new List<Claim>
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, account.UserName),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, account.Role.ToString())
+                new Claim(ClaimTypes.Name, account.UserName),
+                new Claim(ClaimTypes.Role, account.Role.ToString())
             };
 
             // создаем объект ClaimsIdentity
-            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             // установка аутентификационных куки
-            HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
         }
 
     }
