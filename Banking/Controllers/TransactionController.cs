@@ -32,7 +32,7 @@ namespace Banking.Controllers
             }
 
             var recipientBankAccount = _db.BankAccounts.FirstOrDefault(ba => ba.IBAN == ibanRecipient);
-            if (recipientBankAccount.AccountType != BankAccountType.Settlement || recipientBankAccount is null) // для кредитов потом придется убраться
+            if (recipientBankAccount is null) // для кредитов потом придется убраться
             {
                 return BadRequest();
             }
@@ -44,7 +44,7 @@ namespace Banking.Controllers
             }
 
             var senderBankAccount = _db.BankAccounts.FirstOrDefault(ba => ba.AccountId == acc.Id && ba.IBAN == ibanSender);
-            if (senderBankAccount.AccountType != BankAccountType.Settlement || recipientBankAccount is null)
+            if (recipientBankAccount is null)
             {
                 return BadRequest();
             }
