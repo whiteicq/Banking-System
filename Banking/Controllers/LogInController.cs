@@ -9,18 +9,17 @@ using System.Text;
 using Microsoft.JSInterop.Implementation;
 using Microsoft.Identity.Client;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Banking.Controllers
 {
     public class LoginController : Controller
     {
         IAuthService _authService;
-        IEmailService _emailService;
         BankingDbContext _db;
-        public LoginController(IAuthService authService, IEmailService emailService, BankingDbContext db)
+        public LoginController(IAuthService authService, BankingDbContext db)
         {
             _authService = authService;
-            _emailService = emailService;
             _db = db;
         }
 
@@ -46,7 +45,7 @@ namespace Banking.Controllers
 
             SignInUser(account);
 
-            return RedirectToAction("MyAccount", "Account", account);    
+            return RedirectToAction("MyAccount", "Account");    
             
         }
 
@@ -57,9 +56,9 @@ namespace Banking.Controllers
         }
 
         /*[HttpPost]
-        public IActionResult AuthCode()
+        public IActionResult AuthCode(, string authCode)
         {
-            _emailService.
+
         }*/
 
         public async Task<IActionResult> Logout()
@@ -81,6 +80,5 @@ namespace Banking.Controllers
             // установка аутентификационных куки
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
         }
-
     }
 }

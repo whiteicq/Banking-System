@@ -26,7 +26,7 @@ namespace Banking.Controllers
             }
 
             _registrationService.CreateAccount(nickname, email, password, phoneNumber, dateBirth);
-            return RedirectToAction("Login", "LogIn");
+            return RedirectToAction("Login", "Login");
         }
     }
 }
